@@ -1,6 +1,40 @@
-<IfModule mod_rewrite.c>
-    RewriteEngine On
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(.*)$ /index.php [QSA,L]
-</IfModule>
+# Increase PHP limits for file uploads
+php_value upload_max_filesize 20M
+php_value post_max_size 25M
+php_value max_execution_time 300
+php_value max_input_time 300
+php_value memory_limit 256M
+
+# Disable server signature
+ServerSignature Off
+
+# Follow symbolic links
+Options +FollowSymLinks
+
+# Disable access to .htaccess files
+<Files ".htaccess">
+    Require all denied
+</Files>
+
+# Disable access to sensitive files
+<Files ~ "\.(env|lock|md)$">
+    Require all denied
+</Files>
+
+# Symfony routing - handle all requests through index.php
+RewriteEngine On
+
+# Handle Authorization Header
+RewriteCond %{HTTP:Authorization} .
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+# Redirect to URI without front controller to prevent duplicate content
+RewriteCond %{ENV:REDIRECT_STATUS} ^$
+RewriteRule ^index\.php(?:/(.*)|$) %{ENV:BASE}/$1 [R=301,L]
+
+# If the requested filename exists, serve it directly
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule .* - [L]
+
+# Rewrite all other queries to the front controller
+RewriteRule .* %{ENV:BASE}/index.php [L]

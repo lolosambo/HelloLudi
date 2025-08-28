@@ -20,7 +20,7 @@ class Rating
     private ?User $user = null;
 
     #[ORM\ManyToOne(targetEntity: Post::class, inversedBy: 'ratings')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Post $post = null;
 
     #[ORM\Column(type: 'float')]

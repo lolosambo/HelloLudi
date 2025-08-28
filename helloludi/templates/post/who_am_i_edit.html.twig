@@ -30,22 +30,5 @@
         {% endif %}
     </div>
     {{ form_end(form) }}
-
-    <script>
-        new FroalaEditor('.froala', {
-            // Options d'initialisation ici
-            toolbarInline: true,
-            language: 'fr',
-            placeholderText: 'Écrivez votre contenu ici...',
-            imageUploadURL: '/upload_image',
-            imageUploadParams: { id: 'my_editor' },
-            imageMaxSize: 5 * 1024 * 1024,
-            imageAllowedTypes: ['jpeg', 'jpg', 'png', 'gif', 'bmp'],
-            pastePlain: true,
-            htmlRemoveTags: ['is_pasted'],
-            htmlAllowedAttrs: ['class', 'id', 'style'],
-            htmlAllowedEmptyTags: ['i', 'span'],
-        });
-    </script>
 {% endblock %}
 

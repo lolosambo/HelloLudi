@@ -1,524 +1,914 @@
-/*
- * RichEditor - rewritten modern version preserving existing design
- * Handles rich text editing with images, tables and videos
+/**
+ * RichEditor - Version 1.5.0 - Alignement Forcé
+ * Correction définitive du problème d'alignement
  */
+(function(window) {
+    'use strict';
 
-class RichEditor {
-    constructor(containerId, options = {}) {
-        this.container = document.getElementById(containerId);
-        this.options = Object.assign({
-            hiddenFieldId: 'hiddenContent',
-            uploadUrl: '/upload_image'
-        }, options);
+    class RichEditor {
+        constructor(containerId, options = {}) {
+            this.containerId = containerId;
+            this.options = {
+                hiddenFieldId: 'post_content',
+                placeholder: 'Commencez à écrire votre contenu ici...',
+                uploadUrl: '/upload',
+                ...options
+            };
 
-        this.toolbar = this.container.querySelector('.editor-toolbar');
-        this.editor = this.container.querySelector('.editor-content');
-        this.hiddenField = document.getElementById(this.options.hiddenFieldId);
-
-        this.history = [];
-        this.historyIndex = -1;
-        this.maxHistory = 50;
-        this.isFullscreen = false;
-        this.savedRange = null;
-        this.selectedImage = null;
-        this.selectedTable = null;
-        this.selectedVideo = null;
-
-        this.init();
-    }
-
-    /* ---------- initialisation ---------- */
-    init() {
-        if (!this.container || !this.editor || !this.toolbar) {
-            console.error('RichEditor: container or essential elements missing');
-            return;
-        }
-
-        this.setupToolbar();
-        this.setupColorPickers();
-        this.setupFormSync();
-
-        this.editor.addEventListener('input', () => this.onInput());
-        this.editor.addEventListener('paste', () => setTimeout(() => this.updateHidden(), 10));
-        this.editor.addEventListener('keydown', e => this.onKeydown(e));
-        this.editor.addEventListener('click', e => this.onEditorClick(e));
-
-        this.updateHidden();
-        this.saveState();
-
-        this.container.classList.add('editor-ready');
-        this.dispatch('ready', { instance: this });
-    }
-
-    setupToolbar() {
-        this.toolbar.querySelectorAll('[data-command]').forEach(btn => {
-            btn.addEventListener('click', e => {
-                e.preventDefault();
-                const cmd = btn.dataset.command;
-                this.exec(cmd);
-            });
-        });
-
-        const specials = {
-            linkBtn: () => this.showModal('linkModal'),
-            imageBtn: () => this.showModal('imageModal'),
-            tableBtn: () => this.showModal('tableModal'),
-            videoBtn: () => this.showModal('videoModal'),
-            quoteBtn: () => this.insertQuote(),
-            codeBtn: () => this.insertCode(),
-            fullscreenBtn: () => this.toggleFullscreen()
-        };
-        Object.keys(specials).forEach(id => {
-            const btn = document.getElementById(id);
-            if (btn) btn.addEventListener('click', e => { e.preventDefault(); specials[id](); });
-        });
-    }
-
-    setupColorPickers() {
-        const tc = document.getElementById('textColor');
-        const bc = document.getElementById('bgColor');
-        tc && tc.addEventListener('change', e => this.applyTextColor(e.target.value));
-        bc && bc.addEventListener('change', e => this.applyBackgroundColor(e.target.value));
-    }
-
-    setupFormSync() {
-        if (!this.hiddenField) return;
-        const form = this.hiddenField.closest('form');
-        if (form) form.addEventListener('submit', () => this.updateHidden());
-    }
-
-    /* ---------- basic handlers ---------- */
-    onInput() {
-        this.updateHidden();
-        this.saveState();
-    }
-
-    onKeydown(e) {
-        if ((e.ctrlKey || e.metaKey) && !e.altKey) {
-            switch (e.key.toLowerCase()) {
-                case 'z': e.preventDefault(); e.shiftKey ? this.redo() : this.undo(); return;
-                case 'y': e.preventDefault(); this.redo(); return;
-                case 'b': e.preventDefault(); this.exec('bold'); return;
-                case 'i': e.preventDefault(); this.exec('italic'); return;
-                case 'u': e.preventDefault(); this.exec('underline'); return;
-            }
-        }
-        if (e.key === 'Tab') { e.preventDefault(); this.exec('indent'); }
-    }
-
-    onEditorClick(e) {
-        if (e.target.closest('.image-wrapper')) this.selectImage(e.target.closest('.image-wrapper'));
-        else this.deselectImage();
-
-        if (e.target.closest('table')) this.selectTable(e.target.closest('table'));
-        else this.deselectTable();
-
-        if (e.target.closest('.video-main-wrapper')) this.selectVideo(e.target.closest('.video-main-wrapper'));
-        else this.deselectVideo();
-    }
-
-    /* ---------- commands ---------- */
-    exec(command, value = null) {
-        this.editor.focus();
-        document.execCommand(command, false, value);
-        this.updateHidden();
-        this.updateToolbarState();
-    }
-
-    applyTextColor(color) {
-        this.exec('foreColor', color);
-    }
-
-    applyBackgroundColor(color) {
-        this.exec('hiliteColor', color);
-    }
-
-    updateToolbarState() {
-        const cmds = ['bold', 'italic', 'underline', 'strikeThrough', 'justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull'];
-        cmds.forEach(cmd => {
-            const btn = this.toolbar.querySelector(`[data-command="${cmd}"]`);
-            if (btn) {
-                try {
-                    btn.classList.toggle('active', document.queryCommandState(cmd));
-                } catch { /* ignore */ }
-            }
-        });
-    }
-
-    /* ---------- selection helpers ---------- */
-    saveSelection() {
-        const sel = window.getSelection();
-        if (sel && sel.rangeCount) this.savedRange = sel.getRangeAt(0).cloneRange();
-    }
-
-    restoreSelection() {
-        if (this.savedRange) {
-            const sel = window.getSelection();
-            sel.removeAllRanges();
-            sel.addRange(this.savedRange);
-        }
-    }
-
-    insertNodeAtCursor(node) {
-        this.restoreSelection();
-        const sel = window.getSelection();
-        if (!sel.rangeCount) { this.editor.appendChild(node); return; }
-        const range = sel.getRangeAt(0);
-        range.deleteContents();
-        range.insertNode(node);
-        range.collapse(false);
-        sel.removeAllRanges();
-        sel.addRange(range);
-        this.updateHidden();
-    }
-
-    /* ---------- link ---------- */
-    async insertLink() {
-        const text = document.getElementById('linkText').value.trim();
-        const url = document.getElementById('linkUrl').value.trim();
-        const target = document.getElementById('linkTarget').checked;
-        if (!text || !url) return;
-
-        if (window.getSelection().toString()) {
-            this.exec('createLink', url);
-            const links = this.editor.querySelectorAll(`a[href="${url}"]`);
-            links.forEach(l => { if (target) { l.target = '_blank'; l.rel = 'noopener noreferrer'; } });
-        } else {
-            const a = document.createElement('a');
-            a.href = url;
-            a.textContent = text;
-            if (target) { a.target = '_blank'; a.rel = 'noopener noreferrer'; }
-            this.insertNodeAtCursor(a);
-        }
-    }
-
-    showLinkModal() { this.saveSelection(); this.showModal('linkModal'); }
-
-    /* ---------- image ---------- */
-    async insertImage() {
-        const fileInput = document.getElementById('imageFile');
-        const urlInput = document.getElementById('imageUrl');
-        const altInput = document.getElementById('imageAlt');
-        let src = '';
-        if (fileInput && fileInput.files[0]) src = await this.uploadImage(fileInput.files[0]);
-        else if (urlInput && urlInput.value.trim()) src = urlInput.value.trim();
-        if (!src) return;
-        const alt = altInput ? altInput.value : '';
-        this.insertImageElement(src, alt);
-    }
-
-    async uploadImage(file) {
-        const data = new FormData();
-        data.append('file', file);
-        const res = await fetch(this.options.uploadUrl, { method: 'POST', body: data });
-        if (!res.ok) throw new Error('upload failed');
-        const json = await res.json();
-        return json.link;
-    }
-
-    insertImageElement(src, alt = '') {
-        const align = document.querySelector('input[name="imageAlign"]:checked')?.value || 'left';
-        const w = document.getElementById('imageWidth')?.value;
-        const h = document.getElementById('imageHeight')?.value;
-        const img = document.createElement('img');
-        img.src = src;
-        img.alt = alt;
-        if (w) { img.style.width = w + 'px'; img.style.maxWidth = w + 'px'; }
-        if (h) img.style.height = h + 'px';
-        img.style.maxWidth = '100%';
-
-        const wrapper = document.createElement('div');
-        wrapper.className = 'image-wrapper';
-        wrapper.appendChild(img);
-        const handle = document.createElement('div');
-        handle.className = 'image-resize-handle';
-        wrapper.appendChild(handle);
-        if (align === 'center') { wrapper.style.display = 'block'; wrapper.style.textAlign = 'center'; }
-        if (align === 'right') { wrapper.style.float = 'right'; wrapper.style.marginLeft = '15px'; }
-        if (align === 'left') { wrapper.style.float = 'left'; wrapper.style.marginRight = '15px'; }
-
-        this.insertNodeAtCursor(wrapper);
-        this.setupImageResize(wrapper);
-    }
-
-    setupImageResize(wrapper) {
-        const img = wrapper.querySelector('img');
-        const handle = wrapper.querySelector('.image-resize-handle');
-        if (!img || !handle) return;
-        let startX, startY, startW, startH, active = false;
-        handle.addEventListener('mousedown', e => {
-            e.preventDefault();
-            active = true;
-            startX = e.clientX; startY = e.clientY;
-            startW = img.offsetWidth; startH = img.offsetHeight;
-            document.addEventListener('mousemove', move);
-            document.addEventListener('mouseup', up);
-        });
-        const move = e => {
-            if (!active) return;
-            const dx = e.clientX - startX;
-            const dy = e.clientY - startY;
-            const ratio = startW / startH;
-            let newW = startW + dx;
-            let newH = newW / ratio;
-            if (newH < startH + dy) {
-                newH = startH + dy;
-                newW = newH * ratio;
-            }
-            if (newW < 50) { newW = 50; newH = newW / ratio; }
-            img.style.width = newW + 'px';
-            img.style.height = newH + 'px';
-        };
-        const up = () => {
-            if (active) {
-                active = false;
-                document.removeEventListener('mousemove', move);
-                document.removeEventListener('mouseup', up);
-                this.updateHidden();
-            }
-        };
-    }
-
-    selectImage(wrapper) {
-        this.deselectImage();
-        this.selectedImage = wrapper;
-        wrapper.classList.add('selected');
-        const handle = wrapper.querySelector('.image-resize-handle');
-        if (handle) handle.style.display = 'block';
-    }
-
-    deselectImage() {
-        if (this.selectedImage) {
-            this.selectedImage.classList.remove('selected');
-            const handle = this.selectedImage.querySelector('.image-resize-handle');
-            if (handle) handle.style.display = 'none';
+            this.container = null;
+            this.toolbar = null;
+            this.editor = null;
+            this.hiddenField = null;
+            this.isInitialized = false;
+            this.currentRange = null;
+            this.uploadedFiles = [];
+            
+            // Variables pour la gestion des images redimensionnables
             this.selectedImage = null;
-        }
-    }
+            this.resizeHandle = null;
+            this.isResizing = false;
+            this.startX = 0;
+            this.startY = 0;
+            this.startWidth = 0;
+            this.startHeight = 0;
+            this.aspectRatio = 1;
 
-    showImageModal() { this.saveSelection(); this.showModal('imageModal'); }
-
-    /* ---------- table ---------- */
-    async insertTable() {
-        const rows = parseInt(document.getElementById('tableRows').value) || 3;
-        const cols = parseInt(document.getElementById('tableCols').value) || 3;
-        const header = document.getElementById('tableHeader').checked;
-        const style = document.querySelector('input[name="tableStyle"]:checked').value || 'default';
-        const responsive = document.getElementById('tableResponsive').checked;
-        const table = this.createTable(rows, cols, header, style, responsive);
-        this.insertNodeAtCursor(table);
-        this.placeCursorAfter(table);
-    }
-
-    createTable(rows, cols, hasHeader, style, responsive) {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'table-main-wrapper';
-        let table = document.createElement('table');
-        table.className = 'table editor-table';
-        if (style === 'striped') table.classList.add('table-striped');
-        if (style === 'bordered') table.classList.add('table-bordered');
-        if (style === 'hover') table.classList.add('table-hover');
-        if (responsive) {
-            const resp = document.createElement('div');
-            resp.className = 'table-responsive';
-            resp.appendChild(table);
-            wrapper.appendChild(resp);
-        } else {
-            wrapper.appendChild(table);
+            this.init();
         }
 
-        if (hasHeader) {
-            const thead = table.createTHead();
-            const tr = thead.insertRow();
-            for (let c = 0; c < cols; c++) {
-                const th = document.createElement('th');
-                th.textContent = `En-t\u00eate ${c + 1}`;
-                th.contentEditable = true;
-                tr.appendChild(th);
+        init() {
+            this.container = document.getElementById(this.containerId);
+            if (!this.container) {
+                console.error(`Container with ID '${this.containerId}' not found`);
+                return;
+            }
+
+            this.createEditor();
+            this.setupEventListeners();
+            this.loadExistingContent();
+            this.isInitialized = true;
+            
+            console.log('🚀 RichEditor initialisé - Version alignement forcé');
+        }
+
+        createEditor() {
+            // Créer la structure HTML de l'éditeur
+            this.container.innerHTML = `
+                <div class="rich-editor-container">
+                    <div class="editor-toolbar">
+                        ${this.createToolbarHTML()}
+                    </div>
+                    <div class="editor-content" 
+                         contenteditable="true" 
+                         data-placeholder="${this.options.placeholder}">
+                    </div>
+                </div>
+            `;
+
+            this.toolbar = this.container.querySelector('.editor-toolbar');
+            this.editor = this.container.querySelector('.editor-content');
+
+            // Rechercher le champ caché
+            this.hiddenField = document.getElementById(this.options.hiddenFieldId);
+            if (!this.hiddenField) {
+                console.warn('Hidden field not found:', this.options.hiddenFieldId);
             }
         }
 
-        const tbody = table.createTBody();
-        for (let r = 0; r < rows - (hasHeader ? 1 : 0); r++) {
-            const tr = tbody.insertRow();
-            for (let c = 0; c < cols; c++) {
-                const td = tr.insertCell();
-                td.textContent = `Cellule ${r + 1}-${c + 1}`;
-                td.contentEditable = true;
+        createToolbarHTML() {
+            return `
+                <!-- Groupe historique -->
+                <div class="editor-group">
+                    <button type="button" class="editor-btn" data-command="undo" title="Annuler">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </button>
+                    <button type="button" class="editor-btn" data-command="redo" title="Rétablir">
+                        <i class="bi bi-arrow-clockwise"></i>
+                    </button>
+                </div>
+
+                <!-- Groupe format -->
+                <div class="editor-group">
+                    <select class="editor-select" id="formatSelect" title="Format">
+                        <option value="">Format</option>
+                        <option value="h1">Titre 1</option>
+                        <option value="h2">Titre 2</option>
+                        <option value="h3">Titre 3</option>
+                        <option value="p">Paragraphe</option>
+                    </select>
+                </div>
+
+                <!-- Groupe mise en forme -->
+                <div class="editor-group">
+                    <button type="button" class="editor-btn" data-command="bold" title="Gras">
+                        <i class="bi bi-type-bold"></i>
+                    </button>
+                    <button type="button" class="editor-btn" data-command="italic" title="Italique">
+                        <i class="bi bi-type-italic"></i>
+                    </button>
+                    <button type="button" class="editor-btn" data-command="underline" title="Souligné">
+                        <i class="bi bi-type-underline"></i>
+                    </button>
+                </div>
+
+                <!-- Groupe couleurs -->
+                <div class="editor-group">
+                    <div class="color-picker-wrapper">
+                        <input type="color" id="textColor" value="#000000">
+                        <label for="textColor" title="Couleur du texte">
+                            <i class="bi bi-palette"></i>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Groupe alignement -->
+                <div class="editor-group">
+                    <button type="button" class="editor-btn" data-command="justifyLeft" title="Aligner à gauche">
+                        <i class="bi bi-text-left"></i>
+                    </button>
+                    <button type="button" class="editor-btn" data-command="justifyCenter" title="Centrer">
+                        <i class="bi bi-text-center"></i>
+                    </button>
+                    <button type="button" class="editor-btn" data-command="justifyRight" title="Aligner à droite">
+                        <i class="bi bi-text-right"></i>
+                    </button>
+                </div>
+
+                <!-- Groupe listes -->
+                <div class="editor-group">
+                    <button type="button" class="editor-btn" data-command="insertUnorderedList" title="Liste à puces">
+                        <i class="bi bi-list-ul"></i>
+                    </button>
+                    <button type="button" class="editor-btn" data-command="insertOrderedList" title="Liste numérotée">
+                        <i class="bi bi-list-ol"></i>
+                    </button>
+                </div>
+
+                <!-- Groupe insertion -->
+                <div class="editor-group">
+                    <button type="button" class="editor-btn" id="linkBtn" title="Insérer un lien">
+                        <i class="bi bi-link-45deg"></i>
+                    </button>
+                    <button type="button" class="editor-btn" id="imageBtn" title="Insérer une image">
+                        <i class="bi bi-image"></i>
+                    </button>
+                    <button type="button" class="editor-btn" id="videoBtn" title="Insérer une vidéo">
+                        <i class="bi bi-camera-video"></i>
+                    </button>
+                </div>
+
+                <!-- Groupe utilitaires -->
+                <div class="editor-group">
+                    <button type="button" class="editor-btn" data-command="removeFormat" title="Supprimer le formatage">
+                        <i class="bi bi-eraser"></i>
+                    </button>
+                    <button type="button" class="editor-btn" id="fullscreenBtn" title="Plein écran">
+                        <i class="bi bi-fullscreen"></i>
+                    </button>
+                    <button type="button" class="editor-btn" id="debugBtn" title="Debug Alignement">
+                        🔍
+                    </button>
+                </div>
+            `;
+        }
+
+        setupEventListeners() {
+            this.setupToolbarEvents();
+            this.setupEditorEvents();
+            this.setupModalEvents();
+            this.setupImageEvents();
+        }
+
+        setupToolbarEvents() {
+            const commandButtons = this.toolbar.querySelectorAll('[data-command]');
+            commandButtons.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.execCommand(btn.dataset.command);
+                });
+            });
+
+            const formatSelect = document.getElementById('formatSelect');
+            if (formatSelect) {
+                formatSelect.addEventListener('change', (e) => {
+                    if (e.target.value) {
+                        this.applyFormat(e.target.value);
+                    }
+                });
+            }
+
+            const textColor = document.getElementById('textColor');
+            if (textColor) {
+                textColor.addEventListener('change', (e) => {
+                    this.applyTextColor(e.target.value);
+                });
+            }
+
+            document.getElementById('linkBtn')?.addEventListener('click', () => this.showLinkModal());
+            document.getElementById('imageBtn')?.addEventListener('click', () => this.showImageModal());
+            document.getElementById('videoBtn')?.addEventListener('click', () => this.showVideoModal());
+            document.getElementById('fullscreenBtn')?.addEventListener('click', () => this.toggleFullscreen());
+            document.getElementById('debugBtn')?.addEventListener('click', () => this.debugAlignment());
+        }
+
+        setupEditorEvents() {
+            this.editor.addEventListener('input', () => {
+                this.updateHiddenField();
+                this.updateToolbar();
+                // Forcer l'alignement après chaque modification
+                setTimeout(() => this.forceAllImageAlignment(), 100);
+            });
+
+            this.editor.addEventListener('mouseup', () => this.saveSelection());
+            this.editor.addEventListener('keyup', () => this.saveSelection());
+
+            // Événement pour gérer les clics dans l'éditeur
+            this.editor.addEventListener('click', (e) => {
+                if (!e.target.matches('img')) {
+                    this.deselectImage();
+                }
+            });
+
+            this.editor.addEventListener('keydown', (e) => {
+                if (e.ctrlKey && e.key === 'b') {
+                    e.preventDefault();
+                    this.execCommand('bold');
+                }
+                if (e.ctrlKey && e.key === 'i') {
+                    e.preventDefault();
+                    this.execCommand('italic');
+                }
+                if (e.ctrlKey && e.key === 'u') {
+                    e.preventDefault();
+                    this.execCommand('underline');
+                }
+            });
+
+            this.editor.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const text = e.clipboardData.getData('text/plain');
+                this.insertText(text);
+            });
+        }
+
+        setupImageEvents() {
+            // Gestionnaire global pour les événements de souris
+            document.addEventListener('mousemove', (e) => {
+                if (this.isResizing && this.selectedImage) {
+                    e.preventDefault();
+                    this.handleResize(e);
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (this.isResizing) {
+                    this.stopResize();
+                }
+            });
+
+            // Observer pour les nouvelles images
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.type === 'childList') {
+                        mutation.addedNodes.forEach((node) => {
+                            if (node.nodeType === Node.ELEMENT_NODE) {
+                                const images = node.tagName === 'IMG' ? [node] : node.querySelectorAll('img');
+                                images.forEach(img => {
+                                    this.makeImageInteractive(img);
+                                    this.forceImageAlignment(img);
+                                });
+                            }
+                        });
+                    }
+                });
+            });
+
+            observer.observe(this.editor, {
+                childList: true,
+                subtree: true
+            });
+
+            // Rendre les images existantes interactives
+            this.editor.querySelectorAll('img').forEach(img => {
+                this.makeImageInteractive(img);
+                this.forceImageAlignment(img);
+            });
+        }
+
+        makeImageInteractive(img) {
+            if (img.classList.contains('interactive-image')) {
+                return;
+            }
+
+            console.log('🖼️ Rendre image interactive:', img.className);
+            img.classList.add('interactive-image');
+
+            // FORCER L'ALIGNEMENT IMMÉDIATEMENT
+            this.forceImageAlignment(img);
+
+            // Événements
+            img.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.selectImage(img);
+            });
+
+            img.addEventListener('dblclick', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.deselectImage();
+            });
+
+            img.addEventListener('dragstart', (e) => {
+                e.preventDefault();
+            });
+        }
+
+        forceImageAlignment(img) {
+            console.log('🎯 FORCER alignement pour:', img.className);
+            
+            // APPROACH AGRESSIVE - Styles forcés avec !important
+            if (img.classList.contains('align-left')) {
+                console.log('📍 Application GAUCHE forcée');
+                img.style.cssText = `
+                    float: left !important;
+                    margin: 5px 15px 15px 5px !important;
+                    clear: left !important;
+                    max-width: 50% !important;
+                    height: auto !important;
+                    display: block !important;
+                    cursor: pointer !important;
+                    position: static !important;
+                `;
+                console.log('✅ Styles GAUCHE appliqués');
+            } else if (img.classList.contains('align-right')) {
+                console.log('📍 Application DROITE forcée');
+                img.style.cssText = `
+                    float: right !important;
+                    margin: 5px 5px 15px 15px !important;
+                    clear: right !important;
+                    max-width: 50% !important;
+                    height: auto !important;
+                    display: block !important;
+                    cursor: pointer !important;
+                    position: static !important;
+                `;
+                console.log('✅ Styles DROITE appliqués');
+            } else if (img.classList.contains('align-center')) {
+                console.log('📍 Application CENTRE forcée');
+                img.style.cssText = `
+                    display: block !important;
+                    margin: 15px auto !important;
+                    float: none !important;
+                    max-width: 100% !important;
+                    height: auto !important;
+                    cursor: pointer !important;
+                    position: static !important;
+                `;
+                console.log('✅ Styles CENTRE appliqués');
+            } else {
+                console.log('📍 Application DÉFAUT forcée');
+                img.style.cssText = `
+                    display: inline-block !important;
+                    margin: 10px 0 !important;
+                    max-width: 100% !important;
+                    height: auto !important;
+                    float: none !important;
+                    cursor: pointer !important;
+                    position: static !important;
+                `;
+                console.log('✅ Styles DÉFAUT appliqués');
             }
         }
-        return wrapper;
-    }
 
-    selectTable(table) {
-        this.deselectTable();
-        this.selectedTable = table;
-        table.classList.add('selected-table');
-    }
+        forceAllImageAlignment() {
+            const images = this.editor.querySelectorAll('img');
+            console.log(`🔄 Forcer alignement sur ${images.length} image(s)`);
+            images.forEach(img => this.forceImageAlignment(img));
+        }
 
-    deselectTable() {
-        if (this.selectedTable) {
-            this.selectedTable.classList.remove('selected-table');
-            this.selectedTable = null;
+        debugAlignment() {
+            console.log('🔍 DEBUG ALIGNEMENT - DÉBUT');
+            const images = this.editor.querySelectorAll('img');
+            
+            images.forEach((img, index) => {
+                console.log(`--- IMAGE ${index + 1} ---`);
+                console.log('Classes:', img.className);
+                console.log('Styles inline:', img.style.cssText);
+                
+                const computed = window.getComputedStyle(img);
+                console.log('Float computed:', computed.float);
+                console.log('Margin computed:', computed.margin);
+                console.log('Display computed:', computed.display);
+            });
+            
+            // Force un réalignement
+            this.forceAllImageAlignment();
+            console.log('🔍 DEBUG ALIGNEMENT - FIN');
+        }
+
+        selectImage(img) {
+            console.log('📸 Image sélectionnée');
+            
+            // Forcer l'alignement avant la sélection
+            this.forceImageAlignment(img);
+            
+            this.deselectImage();
+            this.selectedImage = img;
+            img.classList.add('selected');
+            this.addResizeHandle(img);
+        }
+
+        deselectImage() {
+            if (this.selectedImage) {
+                console.log('❌ Désélection image');
+                this.selectedImage.classList.remove('selected');
+                this.removeResizeHandle();
+                
+                // Restaurer l'alignement après désélection
+                this.forceImageAlignment(this.selectedImage);
+                this.selectedImage = null;
+            }
+        }
+
+        addResizeHandle(img) {
+            console.log('🔧 Ajout poignée de redimensionnement');
+            this.removeResizeHandle();
+            
+            // Créer wrapper simple
+            const wrapper = document.createElement('div');
+            wrapper.className = 'image-resize-wrapper';
+            wrapper.style.cssText = `
+                position: relative;
+                display: inline-block;
+            `;
+            
+            // Insérer wrapper
+            img.parentNode.insertBefore(wrapper, img);
+            wrapper.appendChild(img);
+            
+            // Créer poignée
+            this.resizeHandle = document.createElement('div');
+            this.resizeHandle.className = 'image-resize-handle';
+            this.resizeHandle.innerHTML = '⤡';
+            
+            Object.assign(this.resizeHandle.style, {
+                position: 'absolute',
+                bottom: '-8px',
+                right: '-8px',
+                width: '16px',
+                height: '16px',
+                background: '#007bff',
+                border: '2px solid #fff',
+                borderRadius: '50%',
+                cursor: 'se-resize',
+                zIndex: '1000',
+                fontSize: '10px',
+                color: 'white',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: 'bold',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
+            });
+            
+            wrapper.appendChild(this.resizeHandle);
+            
+            this.resizeHandle.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.startResize(e, img);
+            });
+        }
+
+        removeResizeHandle() {
+            if (this.resizeHandle) {
+                const wrapper = this.resizeHandle.parentNode;
+                if (wrapper && wrapper.classList.contains('image-resize-wrapper')) {
+                    const img = wrapper.querySelector('img');
+                    if (img) {
+                        wrapper.parentNode.insertBefore(img, wrapper);
+                        // Forcer l'alignement après suppression du wrapper
+                        this.forceImageAlignment(img);
+                    }
+                    wrapper.remove();
+                }
+                this.resizeHandle = null;
+            }
+        }
+
+        startResize(e, img) {
+            console.log('🎯 Début redimensionnement');
+            this.isResizing = true;
+            this.selectedImage = img;
+            
+            this.startX = e.clientX;
+            this.startY = e.clientY;
+            this.startWidth = img.offsetWidth;
+            this.startHeight = img.offsetHeight;
+            this.aspectRatio = this.startHeight / this.startWidth;
+            
+            document.body.style.userSelect = 'none';
+            document.body.style.cursor = 'se-resize';
+        }
+
+        handleResize(e) {
+            if (!this.isResizing || !this.selectedImage) return;
+            
+            const deltaX = e.clientX - this.startX;
+            const newWidth = Math.max(50, this.startWidth + deltaX);
+            const newHeight = newWidth * this.aspectRatio;
+            
+            // Appliquer la taille sans changer l'alignement
+            const currentCssText = this.selectedImage.style.cssText;
+            this.selectedImage.style.width = `${newWidth}px`;
+            this.selectedImage.style.height = `${newHeight}px`;
+            
+            // Maintenir les autres styles
+            if (!currentCssText.includes('width:')) {
+                this.selectedImage.style.cssText = currentCssText + ` width: ${newWidth}px; height: ${newHeight}px;`;
+            }
+        }
+
+        stopResize() {
+            if (!this.isResizing) return;
+            
+            console.log(`✅ Fin redimensionnement: ${this.selectedImage.offsetWidth}px`);
+            this.isResizing = false;
+            
+            document.body.style.userSelect = '';
+            document.body.style.cursor = '';
+            
+            // Forcer l'alignement après redimensionnement
+            this.forceImageAlignment(this.selectedImage);
+            this.updateHiddenField();
+        }
+
+        // Reste des méthodes (setupModalEvents, loadExistingContent, etc.)
+        setupModalEvents() {
+            document.getElementById('insertLinkBtn')?.addEventListener('click', () => {
+                this.insertLink();
+            });
+
+            document.getElementById('imageUrl')?.addEventListener('input', (e) => {
+                this.previewImageUrl(e.target.value);
+            });
+
+            document.getElementById('imageFileInput')?.addEventListener('change', (e) => {
+                this.handleImageUpload(e.target.files);
+            });
+
+            const uploadZone = document.getElementById('imageUploadZone');
+            if (uploadZone) {
+                uploadZone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.target.classList.add('dragover');
+                });
+                uploadZone.addEventListener('dragleave', (e) => {
+                    e.target.classList.remove('dragover');
+                });
+                uploadZone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    e.target.classList.remove('dragover');
+                    this.handleImageUpload(e.dataTransfer.files);
+                });
+            }
+
+            document.getElementById('insertImageBtn')?.addEventListener('click', () => {
+                this.insertImage();
+            });
+
+            document.getElementById('insertVideoBtn')?.addEventListener('click', () => {
+                this.insertVideo();
+            });
+
+            document.getElementById('youtubeUrl')?.addEventListener('input', (e) => {
+                this.previewYouTube(e.target.value);
+            });
+        }
+
+        loadExistingContent() {
+            if (this.hiddenField && this.hiddenField.value) {
+                this.editor.innerHTML = this.hiddenField.value;
+                setTimeout(() => {
+                    this.editor.querySelectorAll('img').forEach(img => {
+                        this.makeImageInteractive(img);
+                        this.forceImageAlignment(img);
+                    });
+                }, 100);
+            }
+        }
+
+        updateHiddenField() {
+            if (this.hiddenField) {
+                this.hiddenField.value = this.editor.innerHTML;
+            }
+        }
+
+        saveSelection() {
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0) {
+                this.currentRange = selection.getRangeAt(0);
+            }
+        }
+
+        restoreSelection() {
+            if (this.currentRange) {
+                const selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(this.currentRange);
+            }
+        }
+
+        execCommand(command, value = null) {
+            this.editor.focus();
+            if (this.currentRange) {
+                this.restoreSelection();
+            }
+            document.execCommand(command, false, value);
+            this.updateToolbar();
+            this.updateHiddenField();
+        }
+
+        applyFormat(tag) {
+            this.execCommand('formatBlock', `<${tag}>`);
+        }
+
+        applyTextColor(color) {
+            this.execCommand('foreColor', color);
+        }
+
+        insertText(text) {
+            this.execCommand('insertText', text);
+        }
+
+        updateToolbar() {
+            const commands = ['bold', 'italic', 'underline'];
+            commands.forEach(command => {
+                const btn = this.toolbar.querySelector(`[data-command="${command}"]`);
+                if (btn) {
+                    btn.classList.toggle('active', document.queryCommandState(command));
+                }
+            });
+        }
+
+        showLinkModal() {
+            const modal = new bootstrap.Modal(document.getElementById('linkModal'));
+            modal.show();
+            
+            const selection = window.getSelection().toString();
+            if (selection) {
+                document.getElementById('linkText').value = selection;
+            }
+        }
+
+        insertLink() {
+            const text = document.getElementById('linkText').value;
+            const url = document.getElementById('linkUrl').value;
+            const target = document.getElementById('linkTarget').checked;
+            
+            if (!url) return;
+            
+            this.restoreSelection();
+            const linkHTML = `<a href="${url}"${target ? ' target="_blank"' : ''}>${text || url}</a>`;
+            this.execCommand('insertHTML', linkHTML);
+            
+            bootstrap.Modal.getInstance(document.getElementById('linkModal')).hide();
+        }
+
+        showImageModal() {
+            const modal = new bootstrap.Modal(document.getElementById('imageModal'));
+            modal.show();
+            
+            document.getElementById('imageUrl').value = '';
+            document.getElementById('imageFileInput').value = '';
+            document.getElementById('uploadPreview').innerHTML = '';
+            document.getElementById('urlPreview').innerHTML = '';
+            document.getElementById('imageConfig').style.display = 'none';
+        }
+
+        previewImageUrl(url) {
+            const preview = document.getElementById('urlPreview');
+            const config = document.getElementById('imageConfig');
+            const insertBtn = document.getElementById('insertImageBtn');
+            
+            if (!url) {
+                preview.innerHTML = '';
+                config.style.display = 'none';
+                insertBtn.disabled = true;
+                return;
+            }
+            
+            preview.innerHTML = `
+                <div class="preview-item">
+                    <img src="${url}" alt="Aperçu" onerror="this.parentElement.innerHTML='<p class=text-danger>Impossible de charger l\\'image</p>'">
+                </div>
+            `;
+            config.style.display = 'block';
+            insertBtn.disabled = false;
+        }
+
+        handleImageUpload(files) {
+            if (!files.length) return;
+            
+            const preview = document.getElementById('uploadPreview');
+            const config = document.getElementById('imageConfig');
+            const insertBtn = document.getElementById('insertImageBtn');
+            
+            preview.innerHTML = '';
+            
+            Array.from(files).forEach((file) => {
+                if (!file.type.startsWith('image/')) return;
+                
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const previewItem = document.createElement('div');
+                    previewItem.className = 'preview-item';
+                    previewItem.innerHTML = `
+                        <img src="${e.target.result}" alt="${file.name}">
+                        <div class="preview-info">
+                            <div>${file.name}</div>
+                            <small>${(file.size / 1024).toFixed(1)} KB</small>
+                        </div>
+                        <button type="button" class="remove-btn" onclick="this.parentElement.remove()">
+                            <i class="bi bi-x"></i>
+                        </button>
+                    `;
+                    preview.appendChild(previewItem);
+                };
+                reader.readAsDataURL(file);
+            });
+            
+            config.style.display = 'block';
+            insertBtn.disabled = false;
+        }
+
+        insertImage() {
+            const urlTab = document.getElementById('url');
+            const uploadTab = document.getElementById('upload');
+            
+            let imageSrc = '';
+            let altText = document.getElementById('imageAlt').value;
+            let align = document.getElementById('imageAlign').value;
+            let width = document.getElementById('imageWidth').value;
+            
+            if (urlTab.classList.contains('show')) {
+                imageSrc = document.getElementById('imageUrl').value;
+            } else if (uploadTab.classList.contains('show')) {
+                const previewImg = document.querySelector('#uploadPreview img');
+                if (previewImg) {
+                    imageSrc = previewImg.src;
+                }
+            }
+            
+            if (!imageSrc) return;
+            
+            // Construire les classes CSS
+            let imageClasses = 'editor-image interactive-image';
+            if (align) {
+                imageClasses += ` align-${align}`;
+            }
+            
+            // Construire le HTML de l'image
+            let imageHTML = `<img src="${imageSrc}" class="${imageClasses}"`;
+            if (altText) imageHTML += ` alt="${altText}"`;
+            if (width) imageHTML += ` style="width: ${width}px;"`;
+            imageHTML += `>`;
+            
+            this.restoreSelection();
+            this.execCommand('insertHTML', imageHTML);
+            
+            // Rendre interactive et forcer alignement
+            setTimeout(() => {
+                const newImages = this.editor.querySelectorAll('img:not(.interactive-image)');
+                newImages.forEach(img => {
+                    this.makeImageInteractive(img);
+                    this.forceImageAlignment(img);
+                });
+            }, 100);
+            
+            bootstrap.Modal.getInstance(document.getElementById('imageModal')).hide();
+        }
+
+        showVideoModal() {
+            const modal = new bootstrap.Modal(document.getElementById('videoModal'));
+            modal.show();
+        }
+
+        previewYouTube(url) {
+            const preview = document.getElementById('youtubePreview');
+            const config = document.getElementById('videoConfig');
+            const insertBtn = document.getElementById('insertVideoBtn');
+            
+            if (!url) {
+                preview.innerHTML = '';
+                config.style.display = 'none';
+                insertBtn.disabled = true;
+                return;
+            }
+            
+            const videoId = this.extractYouTubeId(url);
+            if (!videoId) {
+                preview.innerHTML = '<p class="text-danger">URL YouTube invalide</p>';
+                insertBtn.disabled = true;
+                return;
+            }
+            
+            preview.innerHTML = `
+                <div class="video-container">
+                    <iframe src="https://www.youtube.com/embed/${videoId}" allowfullscreen></iframe>
+                </div>
+            `;
+            config.style.display = 'block';
+            insertBtn.disabled = false;
+        }
+
+        extractYouTubeId(url) {
+            const regex = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/;
+            const match = url.match(regex);
+            return match ? match[1] : null;
+        }
+
+        insertVideo() {
+            const url = document.getElementById('youtubeUrl').value;
+            const align = document.getElementById('videoAlign').value;
+            const width = document.getElementById('videoWidth').value;
+            
+            if (!url) return;
+            
+            const videoId = this.extractYouTubeId(url);
+            if (!videoId) return;
+            
+            let videoHTML = `<div class="video-container${align ? ` align-${align}` : ''}"${width !== '100' ? ` style="width: ${width}%;"` : ''}>`;
+            videoHTML += `<iframe src="https://www.youtube.com/embed/${videoId}" allowfullscreen></iframe>`;
+            videoHTML += `</div>`;
+            
+            this.restoreSelection();
+            this.execCommand('insertHTML', videoHTML);
+            
+            bootstrap.Modal.getInstance(document.getElementById('videoModal')).hide();
+        }
+
+        toggleFullscreen() {
+            const container = this.container.querySelector('.rich-editor-container');
+            const btn = document.getElementById('fullscreenBtn');
+            
+            if (!btn || !container) return;
+            
+            if (container.classList.contains('fullscreen')) {
+                container.classList.remove('fullscreen');
+                btn.innerHTML = '<i class="bi bi-fullscreen"></i>';
+                btn.title = 'Plein écran';
+            } else {
+                container.classList.add('fullscreen');
+                btn.innerHTML = '<i class="bi bi-fullscreen-exit"></i>';
+                btn.title = 'Quitter le plein écran';
+            }
+        }
+
+        getContent() {
+            return this.editor.innerHTML;
+        }
+
+        setContent(content) {
+            this.editor.innerHTML = content;
+            this.updateHiddenField();
+            setTimeout(() => {
+                this.editor.querySelectorAll('img').forEach(img => {
+                    this.makeImageInteractive(img);
+                    this.forceImageAlignment(img);
+                });
+            }, 100);
+        }
+
+        clear() {
+            this.editor.innerHTML = '';
+            this.updateHiddenField();
+            this.deselectImage();
+        }
+
+        focus() {
+            this.editor.focus();
+        }
+
+        destroy() {
+            this.deselectImage();
+            if (this.container) {
+                this.container.innerHTML = '';
+            }
+            this.isInitialized = false;
         }
     }
 
-    showTableModal() { this.saveSelection(); this.showModal('tableModal'); }
-
-    /* ---------- video ---------- */
-    async insertVideo() {
-        const url = document.getElementById('videoUrl').value.trim();
-        const id = this.extractYouTubeId(url);
-        if (!id) return;
-        const w = document.getElementById('videoWidth').value || 560;
-        const h = document.getElementById('videoHeight').value || 315;
-        const align = document.querySelector('input[name="videoAlign"]:checked').value || 'center';
-        const responsive = document.getElementById('videoResponsive').checked;
-        const wrapper = this.createVideoWrapper(id, w, h, align, responsive);
-        this.insertNodeAtCursor(wrapper);
-    }
-
-    extractYouTubeId(url) {
-        if (/^[a-zA-Z0-9_-]{11}$/.test(url)) return url;
-        const r = url.match(/(?:v=|be\/|embed\/)([a-zA-Z0-9_-]{11})/);
-        return r ? r[1] : null;
-    }
-
-    createVideoWrapper(id, w, h, align, responsive) {
-        const main = document.createElement('div');
-        main.className = 'video-main-wrapper';
-        const wrapper = document.createElement('div');
-        wrapper.className = 'video-wrapper';
-        if (responsive) {
-            wrapper.style.position = 'relative';
-            wrapper.style.paddingBottom = '56.25%';
-            wrapper.style.height = 0;
-        } else {
-            wrapper.classList.add('fixed-size');
-            wrapper.style.width = w + 'px';
-            wrapper.style.height = h + 'px';
+    // Auto-initialisation
+    document.addEventListener('DOMContentLoaded', function() {
+        const editorContainer = document.getElementById('richEditorContainer');
+        if (editorContainer) {
+            window.richEditor = new RichEditor('richEditorContainer');
         }
-        const iframe = document.createElement('iframe');
-        iframe.src = `https://www.youtube.com/embed/${id}`;
-        iframe.allowFullscreen = true;
-        if (!responsive) {
-            iframe.style.width = '100%';
-            iframe.style.height = '100%';
-        }
-        wrapper.appendChild(iframe);
-        if (align === 'center') wrapper.classList.add('center');
-        if (align === 'left') wrapper.classList.add('float-left');
-        if (align === 'right') wrapper.classList.add('float-right');
-        main.appendChild(wrapper);
-        return main;
-    }
+    });
 
-    selectVideo(wrapper) {
-        this.deselectVideo();
-        this.selectedVideo = wrapper;
-        wrapper.classList.add('selected-video');
-    }
+    // Export de la classe
+    window.RichEditor = RichEditor;
 
-    deselectVideo() {
-        if (this.selectedVideo) {
-            this.selectedVideo.classList.remove('selected-video');
-            this.selectedVideo = null;
-        }
-    }
-
-    showVideoModal() { this.saveSelection(); this.showModal('videoModal'); }
-
-    /* ---------- quote & code ---------- */
-    insertQuote() {
-        const block = document.createElement('blockquote');
-        const text = window.getSelection().toString() || 'Votre citation ici...';
-        block.textContent = text;
-        this.insertNodeAtCursor(block);
-    }
-
-    insertCode() {
-        if (window.getSelection().toString()) {
-            const code = document.createElement('code');
-            code.textContent = window.getSelection().toString();
-            this.insertNodeAtCursor(code);
-        } else {
-            const pre = document.createElement('pre');
-            const code = document.createElement('code');
-            code.textContent = 'Votre code ici...';
-            pre.appendChild(code);
-            this.insertNodeAtCursor(pre);
-        }
-    }
-
-    /* ---------- fullscreen ---------- */
-    toggleFullscreen() {
-        this.isFullscreen = !this.isFullscreen;
-        this.container.classList.toggle('fullscreen-editor', this.isFullscreen);
-        const btn = document.getElementById('fullscreenBtn');
-        if (btn) btn.innerHTML = this.isFullscreen ? '<i class="bi bi-fullscreen-exit"></i>' : '<i class="bi bi-fullscreen"></i>';
-        document.body.style.overflow = this.isFullscreen ? 'hidden' : '';
-    }
-
-    /* ---------- history ---------- */
-    saveState() {
-        const html = this.editor.innerHTML;
-        if (this.history[this.historyIndex] !== html) {
-            this.history = this.history.slice(0, this.historyIndex + 1);
-            this.history.push(html);
-            if (this.history.length > this.maxHistory) this.history.shift();
-            this.historyIndex = this.history.length - 1;
-        }
-    }
-
-    undo() {
-        if (this.historyIndex > 0) {
-            this.historyIndex--;
-            this.editor.innerHTML = this.history[this.historyIndex];
-            this.updateHidden();
-        }
-    }
-
-    redo() {
-        if (this.historyIndex < this.history.length - 1) {
-            this.historyIndex++;
-            this.editor.innerHTML = this.history[this.historyIndex];
-            this.updateHidden();
-        }
-    }
-
-    /* ---------- util ---------- */
-    updateHidden() { if (this.hiddenField) this.hiddenField.value = this.editor.innerHTML; }
-
-    placeCursorAfter(el) {
-        const range = document.createRange();
-        const sel = window.getSelection();
-        range.setStartAfter(el);
-        range.collapse(true);
-        sel.removeAllRanges();
-        sel.addRange(range);
-    }
-
-    showModal(id) {
-        const m = document.getElementById(id);
-        if (m && window.bootstrap) new bootstrap.Modal(m).show();
-    }
-
-    dispatch(name, detail = {}) { document.dispatchEvent(new CustomEvent(`richEditor${name}`, { detail })); }
-
-    /* ---------- public API ---------- */
-    setContent(html) { this.editor.innerHTML = html; this.updateHidden(); this.saveState(); }
-    getContent() { return this.editor.innerHTML; }
-    getText() { return this.editor.textContent; }
-    clear() { this.editor.innerHTML = '<p><br></p>'; this.updateHidden(); this.saveState(); }
-    focus() { this.editor.focus(); }
-    syncContent() { this.updateHidden(); return this.hiddenField ? this.hiddenField.value : ''; }
-    isReady() { return !!this.container; }
-    destroy() {
-        this.editor.removeEventListener('input', () => this.onInput());
-        this.editor.removeEventListener('paste', () => setTimeout(() => this.updateHidden(), 10));
-        this.editor.removeEventListener('keydown', e => this.onKeydown(e));
-        this.editor.removeEventListener('click', e => this.onEditorClick(e));
-    }
-}
-
-window.RichEditor = RichEditor;
+})(window);

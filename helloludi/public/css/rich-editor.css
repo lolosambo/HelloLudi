@@ -1,148 +1,147 @@
-/**
- * Styles pour l'éditeur de texte riche avec tableaux et vidéos - Version complète corrigée
- */
+/* ==========================================================================
+   RICH EDITOR - Styles pour l'éditeur de texte riche
+   ========================================================================== */
 
-/* Conteneur principal de l'éditeur */
-.rich-editor-container {
-    border: 1px solid #ced4da;
-    border-radius: 0.375rem;
-    background: white;
+/* Conteneur spécifique pour les formulaires */
+.editor-form-container {
+    width: 100%;
     max-width: 100%;
-    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    overflow: hidden;
+    position: relative;
+    clear: both;
 }
 
-.rich-editor-container:focus-within {
-    margin-top: 10px;
-    border-color: #86b7fe;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+/* Forcer l'éditeur à rester dans le formulaire */
+.form-container .rich-editor-container {
+    position: relative !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    left: auto !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    z-index: auto !important;
+    margin: 15px 0 !important;
+}
+
+/* S'assurer que l'éditeur n'est pas en plein écran au démarrage */
+.form-container .rich-editor-container:not(.fullscreen) {
+    position: relative !important;
+    height: auto !important;
+}
+
+/* Container principal de l'éditeur - Version STABLE */
+.rich-editor-container {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin: 15px 0;
+    min-height: 400px;
+    max-width: 100% !important; /* Empêcher le débordement */
+    width: 100% !important;
+    position: relative !important; /* Assurer un positionnement normal */
+    /* SUPPRIMER TOUT RISQUE DE PLEIN ÉCRAN */
+    left: auto !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    z-index: auto !important;
+    height: auto !important;
 }
 
 /* Barre d'outils */
 .editor-toolbar {
     background: #f8f9fa;
     border-bottom: 1px solid #dee2e6;
-    padding: 8px;
-    border-radius: 0.375rem 0.375rem 0 0;
+    padding: 10px 15px;
     display: flex;
     flex-wrap: wrap;
-    gap: 4px;
+    gap: 8px;
     align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
+/* Groupes de boutons */
 .editor-group {
     display: flex;
-    gap: 2px;
-    padding: 0 4px;
-    border-right: 1px solid #dee2e6;
     align-items: center;
+    gap: 4px;
+    padding: 0 8px;
+    border-right: 1px solid #dee2e6;
 }
 
 .editor-group:last-child {
     border-right: none;
 }
 
-/* Boutons de la barre d'outils */
+/* Boutons de l'éditeur */
 .editor-btn {
     background: none;
     border: 1px solid transparent;
-    padding: 6px 8px;
     border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: all 0.2s ease;
+    padding: 6px 8px;
     color: #495057;
-    display: inline-flex;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
     align-items: center;
     justify-content: center;
     min-width: 32px;
-    height: 32px;
+    min-height: 32px;
+    user-select: none; /* Empêcher la sélection du texte sur les boutons */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 .editor-btn:hover {
-    background: #e9ecef;
+    background-color: #e9ecef;
     border-color: #adb5bd;
     color: #212529;
 }
 
-.editor-btn:active {
-    background: #dee2e6;
-    border-color: #6c757d;
-}
-
 .editor-btn.active {
-    background: #0d6efd;
-    color: white;
-    border-color: #0d6efd;
+    background-color: #007bff !important;
+    border-color: #007bff !important;
+    color: #fff !important;
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
 }
 
 .editor-btn:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+    pointer-events: none;
 }
 
-/* Sélecteurs dans la barre d'outils */
+/* Empêcher la sélection sur la barre d'outils */
+.editor-toolbar {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+/* Sélecteurs */
 .editor-select {
     border: 1px solid #ced4da;
     border-radius: 4px;
     padding: 4px 8px;
     font-size: 14px;
-    background: white;
+    background: #fff;
+    color: #495057;
     cursor: pointer;
-    transition: border-color 0.15s ease-in-out;
-    min-width: 100px;
+    min-width: 120px;
 }
 
 .editor-select:focus {
-    border-color: #86b7fe;
     outline: none;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-}
-
-.editor-select:hover {
-    border-color: #adb5bd;
-}
-
-/* Zone de contenu éditable */
-.editor-content {
-    min-height: 300px;
-    padding: 15px;
-    outline: none;
-    line-height: 1.6;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    font-size: 16px;
-    color: #212529;
-    overflow-y: auto;
-}
-
-.editor-content:focus {
-    outline: none;
-}
-
-.editor-content:empty:before {
-    content: "Commencez à taper votre contenu ici...";
-    color: #6c757d;
-    font-style: italic;
-}
-
-/* Mode plein écran */
-.fullscreen-editor {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 9999;
-    background: white;
-    border-radius: 0;
-}
-
-.fullscreen-editor .editor-content {
-    height: calc(100vh - 80px);
-    min-height: auto;
-}
-
-.fullscreen-editor .editor-toolbar {
-    border-radius: 0;
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 
 /* Sélecteurs de couleur */
@@ -151,678 +150,495 @@
     display: inline-block;
 }
 
-.color-picker {
+.color-picker-wrapper input[type="color"] {
+    position: absolute;
+    opacity: 0;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+}
+
+.color-picker-wrapper label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 32px;
     height: 32px;
     border: 1px solid #ced4da;
     border-radius: 4px;
     cursor: pointer;
-    padding: 0;
-    background: none;
+    background: #fff;
+    transition: all 0.2s;
 }
 
-.color-picker::-webkit-color-swatch-wrapper {
-    padding: 2px;
+.color-picker-wrapper label:hover {
+    background: #e9ecef;
+    border-color: #adb5bd;
 }
 
-.color-picker::-webkit-color-swatch {
-    border: none;
-    border-radius: 2px;
+/* Zone d'édition */
+.editor-content {
+    min-height: 300px;
+    padding: 20px;
+    outline: none;
+    font-family: inherit;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #212529;
+    background: #fff;
+    overflow-y: auto;
+    max-height: 600px;
+    width: 100%; /* Assurer que le contenu ne déborde pas */
+    box-sizing: border-box; /* Inclure padding dans la largeur */
 }
 
-/* ===== STYLES POUR LES TABLEAUX CORRIGÉS ===== */
-.editor-content .table-main-wrapper {
-    margin: 20px 0;
-    clear: both;
-    display: block;
-    width: 100%;
-    position: relative;
-}
-
-.editor-content .table-wrapper {
-    margin-bottom: 15px;
-    position: relative;
-}
-
-.editor-content .editor-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: white;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    overflow: hidden;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    margin: 0;
-}
-
-.editor-content .editor-table th {
-    background: #f8f9fa;
-    color: #495057;
-    font-weight: 600;
-    padding: 12px 15px;
-    text-align: left;
-    border-bottom: 2px solid #dee2e6;
-    border-right: 1px solid #dee2e6;
-    position: relative;
-}
-
-.editor-content .editor-table td {
-    padding: 12px 15px;
-    border-bottom: 1px solid #dee2e6;
-    border-right: 1px solid #dee2e6;
-    position: relative;
-    min-height: 20px;
-    min-width: 80px;
-    word-wrap: break-word;
-}
-
-.editor-content .editor-table th:focus,
-.editor-content .editor-table td:focus {
-    outline: 2px solid #0d6efd;
-    outline-offset: -2px;
-    background: #f0f8ff;
-}
-
-/* Styles pour les tableaux sélectionnés */
-.editor-content .selected-table {
-    outline: 2px solid #0d6efd;
-    outline-offset: 2px;
-}
-
-/* Styles pour les variantes de tableaux */
-.editor-content .table-striped tbody tr:nth-of-type(odd) {
-    background: rgba(0, 0, 0, 0.05);
-}
-
-.editor-content .table-bordered th,
-.editor-content .table-bordered td {
-    border: 1px solid #dee2e6;
-}
-
-.editor-content .table-hover tbody tr:hover {
-    background: rgba(0, 0, 0, 0.075);
-}
-
-.editor-content .table-sm th,
-.editor-content .table-sm td {
-    padding: 8px 12px;
-}
-
-/* Tables responsives */
-.editor-content .table-responsive {
-    overflow-x: auto;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* Clear fix pour éviter les problèmes après les tableaux */
-.editor-content .table-main-wrapper::after {
-    content: "";
-    display: table;
-    clear: both;
-}
-
-/* Styles pour les cellules vides */
-.editor-content .editor-table th:empty::before,
-.editor-content .editor-table td:empty::before {
-    content: '\00a0'; /* Espace insécable */
+/* Placeholder pour l'éditeur */
+.editor-content[data-placeholder]:empty::before {
+    content: attr(data-placeholder);
     color: #6c757d;
-}
-
-/* ===== STYLES POUR LES VIDÉOS YOUTUBE CORRIGÉS ===== */
-.editor-content .video-main-wrapper {
-    margin: 20px 0;
-    clear: both;
-    display: block;
-    width: 100%;
-    position: relative;
-}
-
-.editor-content .video-wrapper {
-    position: relative;
-    display: block;
-    margin-bottom: 15px;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-/* Vidéos responsives avec ratio 16:9 */
-.editor-content .video-wrapper {
-    position: relative !important;
-}
-
-.editor-content .video-wrapper iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100% !important;
-    height: 100% !important;
-    border: none;
-    border-radius: 8px;
-}
-
-/* Styles pour les vidéos avec dimensions fixes (non-responsive) */
-.editor-content .video-wrapper.fixed-size {
-    height: auto !important;
-    padding-bottom: 0 !important;
-    display: inline-block;
-}
-
-.editor-content .video-wrapper.fixed-size iframe {
-    position: relative !important;
-    display: block;
-}
-
-/* Alignement des vidéos */
-.editor-content .video-wrapper.center {
-    margin: 20px auto 15px auto;
-    display: block;
-    text-align: center;
-}
-
-.editor-content .video-wrapper.float-left {
-    float: left;
-    margin: 5px 20px 15px 0;
-    max-width: 400px; /* Limite pour les floats */
-}
-
-.editor-content .video-wrapper.float-right {
-    float: right;
-    margin: 5px 0 15px 20px;
-    max-width: 400px; /* Limite pour les floats */
-}
-
-/* Clear fix pour éviter les problèmes après les vidéos */
-.editor-content .video-main-wrapper::after {
-    content: "";
-    display: table;
-    clear: both;
-}
-
-/* Paragraphes après tableaux et vidéos */
-.editor-content .table-main-wrapper > p:last-child,
-.editor-content .video-main-wrapper > p:last-child {
-    margin: 10px 0;
-    min-height: 20px;
-    line-height: 1.5;
-    clear: both;
-}
-
-/* Gestion des images */
-.image-wrapper {
-    position: relative;
-    display: inline-block;
-    max-width: 100%;
-    margin: 5px;
-}
-
-.image-wrapper img {
-    display: block;
-    max-width: 100%;
-    height: auto;
-    border-radius: 4px;
-}
-
-.image-wrapper.selected {
-    outline: 2px solid #0d6efd;
-    outline-offset: 2px;
-}
-
-.image-resize-handle {
-    position: absolute;
-    width: 8px;
-    height: 8px;
-    background: #0d6efd;
-    border: 1px solid white;
-    cursor: nw-resize;
-    bottom: -4px;
-    right: -4px;
-    border-radius: 1px;
-}
-
-.image-resize-handle:hover {
-    background: #0056b3;
-}
-
-/* Styles pour le contenu formaté */
-.editor-content blockquote {
-    border-left: 4px solid #0d6efd;
-    background: #f8f9fa;
-    padding: 10px 15px;
-    margin: 10px 0;
     font-style: italic;
-    border-radius: 0 4px 4px 0;
+    pointer-events: none;
+}
+
+/* Styles pour le contenu édité */
+.editor-content h1, .editor-content h2, .editor-content h3, 
+.editor-content h4, .editor-content h5, .editor-content h6 {
+    margin: 1.5em 0 0.5em 0;
+    font-weight: bold;
+}
+
+.editor-content h1 { font-size: 2em; }
+.editor-content h2 { font-size: 1.7em; }
+.editor-content h3 { font-size: 1.4em; }
+.editor-content h4 { font-size: 1.2em; }
+.editor-content h5 { font-size: 1.1em; }
+.editor-content h6 { font-size: 1em; }
+
+.editor-content p {
+    margin: 1em 0;
+}
+
+.editor-content ul, .editor-content ol {
+    margin: 1em 0;
+    padding-left: 2em;
+}
+
+.editor-content blockquote {
+    margin: 1em 0;
+    padding: 10px 20px;
+    border-left: 4px solid #007bff;
+    background: #f8f9fa;
+    font-style: italic;
 }
 
 .editor-content pre {
     background: #f8f9fa;
     border: 1px solid #dee2e6;
     border-radius: 4px;
-    padding: 10px;
-    margin: 10px 0;
-    overflow-x: auto;
-    font-family: 'Courier New', Consolas, monospace;
+    padding: 15px;
+    font-family: 'Courier New', monospace;
     font-size: 14px;
+    overflow-x: auto;
+    margin: 1em 0;
 }
 
 .editor-content code {
     background: #f8f9fa;
-    padding: 2px 4px;
+    padding: 2px 6px;
     border-radius: 3px;
-    font-family: 'Courier New', Consolas, monospace;
-    font-size: 0.875em;
-    color: #e83e8c;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
 }
 
-.editor-content pre code {
-    background: none;
-    padding: 0;
-    color: inherit;
-}
-
-/* Listes */
-.editor-content ul,
-.editor-content ol {
-    padding-left: 2rem;
-    margin: 1rem 0;
-}
-
-.editor-content ul li,
-.editor-content ol li {
-    margin-bottom: 0.5rem;
-}
-
-.editor-content ul {
-    list-style-type: disc;
-}
-
-.editor-content ol {
-    list-style-type: decimal;
-}
-
-/* Titres */
-.editor-content h1,
-.editor-content h2,
-.editor-content h3,
-.editor-content h4,
-.editor-content h5,
-.editor-content h6 {
-    font-weight: 600;
-    margin-top: 1.5rem;
-    margin-bottom: 1rem;
-    line-height: 1.25;
-}
-
-.editor-content h1 {
-    font-size: 2rem;
-    border-bottom: 2px solid #dee2e6;
-    padding-bottom: 0.5rem;
-}
-
-.editor-content h2 {
-    font-size: 1.75rem;
-    border-bottom: 1px solid #dee2e6;
-    padding-bottom: 0.25rem;
-}
-
-.editor-content h3 {
-    font-size: 1.5rem;
-}
-
-.editor-content h4 {
-    font-size: 1.25rem;
-}
-
-.editor-content h5 {
-    font-size: 1.125rem;
-}
-
-.editor-content h6 {
-    font-size: 1rem;
-    color: #6c757d;
-}
-
-/* Paragraphes */
-.editor-content p {
-    margin-bottom: 1rem;
-}
-
-.editor-content p:last-child {
-    margin-bottom: 0;
-}
-
-/* Paragraphes vides pour l'espacement */
-.editor-content p:empty::before {
-    content: '\00a0'; /* Espace insécable */
-}
-
-/* Liens */
-.editor-content a {
-    color: #0d6efd;
-    text-decoration: underline;
-}
-
-.editor-content a:hover {
-    color: #0056b3;
-    text-decoration: none;
-}
-
-/* Ligne horizontale */
-.editor-content hr {
-    margin: 2rem 0;
-    border: none;
-    border-top: 1px solid #dee2e6;
-}
-
-/* Tables (styles généraux) */
 .editor-content table {
     width: 100%;
-    margin: 1rem 0;
     border-collapse: collapse;
+    margin: 1em 0;
+}
+
+.editor-content table.table-bordered {
     border: 1px solid #dee2e6;
 }
 
-.editor-content th,
-.editor-content td {
-    padding: 0.75rem;
+.editor-content table.table-bordered td,
+.editor-content table.table-bordered th {
     border: 1px solid #dee2e6;
-    text-align: left;
-    vertical-align: top;
+}
+
+.editor-content table.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(0, 0, 0, 0.05);
 }
 
 .editor-content th {
-    background: #f8f9fa;
-    font-weight: 600;
+    background-color: #f8f9fa;
+    font-weight: bold;
+    text-align: left;
 }
 
-/* ===== AMÉLIORATIONS DES MODALES ===== */
-.modal-content {
-    border-radius: 15px;
-    border: none;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+.editor-content td, .editor-content th {
+    padding: 8px 12px;
+    vertical-align: top;
 }
 
-.modal-header {
-    background: linear-gradient(45deg, #667eea, #764ba2);
-    color: white;
-    border-radius: 15px 15px 0 0;
-    border-bottom: none;
-    padding: 1.5rem;
+.editor-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+    margin: 10px 0;
 }
 
-.modal-header .modal-title {
-    font-weight: 600;
-    font-size: 1.25rem;
+.editor-content img.align-left {
+    float: left;
+    margin-right: 15px;
+    margin-bottom: 10px;
 }
 
-.modal-body {
-    padding: 2rem;
+.editor-content img.align-right {
+    float: right;
+    margin-left: 15px;
+    margin-bottom: 10px;
 }
 
-.modal-footer {
-    border-top: 1px solid #dee2e6;
-    padding: 1.5rem;
-    background: #f8f9fa;
-    border-radius: 0 0 15px 15px;
+.editor-content img.align-center {
+    display: block;
+    margin: 15px auto;
 }
 
-/* Styles pour les aperçus dans les modales */
-#tablePreview,
-#videoPreview {
-    border: 2px dashed #dee2e6;
+.editor-content img.align-left {
+    float: left;
+    margin: 5px 15px 15px 5px;
+}
+
+.editor-content img.align-right {
+    float: right;
+    margin: 5px 5px 15px 15px;
+}
+
+/* Styles d'habillage avancés pour les images - Version corrigée */
+.editor-content img.wrap-left {
+    float: left;
+    margin: 5px 15px 10px 5px; /* Marge optimisée */
+    clear: left;
+    max-width: 50%; /* Limite la largeur pour éviter la casse */
+}
+
+.editor-content img.wrap-right {
+    float: right;
+    margin: 5px 5px 10px 15px; /* Marge optimisée */
+    clear: right;
+    max-width: 50%; /* Limite la largeur pour éviter la casse */
+}
+
+.editor-content img.wrap-both {
+    float: left;
+    margin: 5px 15px 10px 5px; /* Marge uniforme */
+    clear: none;
+    max-width: 40%; /* Limite plus stricte pour le texte autour */
+}
+
+.editor-content img.background {
+    position: absolute;
+    z-index: -1;
+    opacity: 0.3;
+    pointer-events: none;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 80%;
+    max-height: 80%;
+    margin: 0; /* Pas de marge pour l'arrière-plan */
+}
+
+/* Conteneur spécial pour les images en arrière-plan - Version corrigée */
+.editor-content .background-image-container {
+    position: relative;
+    min-height: 200px;
+    padding: 20px;
+    margin: 20px 0;
+    border: 2px dashed #ccc;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
     border-radius: 8px;
-    padding: 1rem;
-    background: #f8f9fa;
-    min-height: 100px;
-    transition: all 0.3s ease;
 }
 
-#tablePreview:hover,
-#videoPreview:hover {
-    border-color: #0d6efd;
-    background: #f0f8ff;
+.editor-content .background-image-container div {
+    position: relative;
+    z-index: 2;
+    color: #333;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+    padding: 10px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 5px;
+    min-height: 40px;
 }
 
-/* Styles pour les contrôles des modales */
-.btn-group .btn {
-    transition: all 0.3s ease;
+.editor-content .background-image-container:hover {
+    border-color: #007bff;
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
 }
 
-.btn-group .btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-.btn-group input[type="radio"]:checked + label {
-    background: linear-gradient(45deg, #667eea, #764ba2);
-    border-color: #667eea;
-    color: white;
-}
-
-/* ===== TOOLBAR AMÉLIORÉE ===== */
-.editor-toolbar .btn-group .dropdown-menu {
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    border: none;
-    padding: 0.5rem 0;
-}
-
-.editor-toolbar .btn-group .dropdown-item {
-    padding: 0.5rem 1rem;
-    transition: all 0.2s ease;
-    border-radius: 0;
-}
-
-.editor-toolbar .btn-group .dropdown-item:hover {
-    background: linear-gradient(45deg, #667eea, #764ba2);
-    color: white;
-    transform: translateX(5px);
-}
-
-/* Clear fix global pour l'éditeur */
+/* Clear des flottants */
 .editor-content::after {
     content: "";
     display: table;
     clear: both;
 }
 
-/* Empêcher les problèmes de float */
-.editor-content > *:last-child {
-    margin-bottom: 0;
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-    .editor-toolbar {
-        padding: 4px;
-        gap: 2px;
-    }
-
-    .editor-group {
-        padding: 0 2px;
-        gap: 1px;
-    }
-
-    .editor-btn {
-        padding: 4px 6px;
-        font-size: 12px;
-        min-width: 28px;
-        height: 28px;
-    }
-
-    .editor-select {
-        font-size: 12px;
-        padding: 2px 4px;
-        min-width: 80px;
-    }
-
-    .color-picker {
-        width: 28px;
-        height: 28px;
-    }
-
-    .editor-content {
-        padding: 10px;
-        font-size: 14px;
-    }
-
-    .fullscreen-editor .editor-content {
-        height: calc(100vh - 60px);
-    }
-
-    .modal-dialog.modal-lg {
-        max-width: 95%;
-        margin: 1rem auto;
-    }
-
-    .modal-body {
-        padding: 1rem;
-    }
-
-    .modal-header,
-    .modal-footer {
-        padding: 1rem;
-    }
-
-    /* Tables responsives sur mobile */
-    .editor-content .table-responsive {
-        font-size: 0.875rem;
-    }
-
-    .editor-content .editor-table th,
-    .editor-content .editor-table td {
-        padding: 8px 6px;
-        min-width: 60px;
-    }
-
-    /* Vidéos responsives sur mobile */
-    .editor-content .video-wrapper {
-        margin: 20px 0 !important;
-        float: none !important;
-        max-width: 100% !important;
-        width: 100% !important;
-    }
-
-    /* Forcer les vidéos à être centrées sur mobile */
-    .editor-content .video-wrapper.float-left,
-    .editor-content .video-wrapper.float-right {
-        float: none !important;
-        margin: 20px auto !important;
-        display: block !important;
-    }
-}
-
-@media (max-width: 576px) {
-    .editor-toolbar {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .editor-group {
-        border-right: none;
-        border-bottom: 1px solid #dee2e6;
-        padding: 4px 0;
-        justify-content: center;
-    }
-
-    .editor-group:last-child {
-        border-bottom: none;
-    }
-}
-
-/* Animations et transitions */
-.editor-content * {
+/* Améliorations visuelles pour les images avec habillage */
+.editor-content img.wrap-left:hover,
+.editor-content img.wrap-right:hover,
+.editor-content img.wrap-both:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transform: scale(1.02);
     transition: all 0.2s ease;
 }
 
-.editor-btn i {
-    transition: transform 0.2s ease;
+/* Images dans l'éditeur - styles améliorés */
+.editor-content img.editor-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+    margin: 10px 5px; /* Marge par défaut de 10px vertical et 5px horizontal */
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
-.editor-btn:hover i {
-    transform: scale(1.1);
+.editor-content img.editor-image:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-/* États de focus améliorés */
-.editor-content:focus {
-    box-shadow: inset 0 0 0 2px rgba(13, 110, 253, 0.25);
+.editor-content img.editor-image.selected {
+    outline: 3px solid #007bff;
+    outline-offset: 2px;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+    position: relative; /* Position relative pour les poignées JS */
 }
 
-/* Sélection de texte */
-.editor-content ::selection {
-    background: rgba(13, 110, 253, 0.25);
+/* La poignée est maintenant créée en JavaScript */
+
+/* Conteneurs vidéo dans l'éditeur - Version avancée */
+.editor-content .video-container {
+    position: relative;
+    margin: 20px auto;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+    max-width: 100%;
 }
 
-.editor-content ::-moz-selection {
-    background: rgba(13, 110, 253, 0.25);
-}
-
-/* Aperçu d'image dans le modal */
-#imagePreview {
-    text-align: center;
-    padding: 1rem;
-    background: #f8f9fa;
-    border-radius: 0.375rem;
-    border: 2px dashed #dee2e6;
-}
-
-#imagePreview img {
-    border-radius: 0.375rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* Barre de progression pour l'upload */
-.progress {
-    height: 0.5rem;
-    background-color: #e9ecef;
-    border-radius: 0.25rem;
-}
-
-.progress-bar {
-    background-color: #0d6efd;
-    transition: width 0.3s ease;
-}
-
-/* ===== ANIMATIONS ET TRANSITIONS ===== */
-.table-main-wrapper,
-.video-main-wrapper {
-    animation: fadeInUp 0.4s ease-out;
-}
-
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Effet de survol pour les éléments interactifs */
-.editor-content .editor-table,
-.editor-content .video-wrapper iframe {
-    transition: all 0.3s ease;
-}
-
-.editor-content .editor-table:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.editor-content .video-wrapper:hover {
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+.editor-content .video-container:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
     transform: translateY(-2px);
 }
 
-/* ===== STYLES POUR LES INDICATEURS DE CHARGEMENT ===== */
-.loading-spinner {
-    display: inline-block;
+.editor-content .video-container.video-left {
+    float: left;
+    margin: 10px 20px 10px 0;
+}
+
+.editor-content .video-container.video-right {
+    float: right;
+    margin: 10px 0 10px 20px;
+}
+
+.editor-content .video-container.video-center {
+    display: block;
+    margin: 20px auto;
+}
+
+/* Responsive iframe pour les vidéos */
+.editor-content .ratio {
+    position: relative;
+    width: 100%;
+}
+
+.editor-content .ratio::before {
+    display: block;
+    padding-top: var(--bs-aspect-ratio);
+    content: "";
+}
+
+.editor-content .ratio > * {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.editor-content .video-container iframe,
+.editor-content .video-container video {
+    border: 0;
+    border-radius: 8px;
+}
+
+/* Styles pour les aperçus de vidéo dans les modales */
+.video-preview-item {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f8f9fa;
+}
+
+.video-preview-item .preview-info {
+    padding: 10px;
+    background: #fff;
+    border-top: 1px solid #dee2e6;
+    font-size: 14px;
+    color: #6c757d;
+}
+
+/* Configuration vidéo dans modale */
+.video-config {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+.editor-content hr {
+    border: 0;
+    height: 2px;
+    background: linear-gradient(to right, transparent, #007bff, transparent);
+    margin: 2em 0;
+}
+
+/* Mode plein écran */
+.rich-editor-container.fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9999;
+    border-radius: 0;
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.rich-editor-container.fullscreen .editor-content {
+    flex: 1;
+    max-height: none;
+    border-radius: 0;
+}
+
+.rich-editor-container.fullscreen .editor-toolbar {
+    flex-shrink: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .editor-toolbar {
+        padding: 8px;
+        gap: 4px;
+    }
+    
+    .editor-group {
+        padding: 0 4px;
+    }
+    
+    .editor-btn {
+        min-width: 28px;
+        min-height: 28px;
+        padding: 4px 6px;
+        font-size: 12px;
+    }
+    
+    .editor-select {
+        min-width: 100px;
+        font-size: 12px;
+    }
+    
+    .editor-content {
+        padding: 15px;
+        font-size: 14px;
+    }
+}
+
+/* Styles pour les modales */
+.upload-zone {
+    border: 2px dashed #dee2e6;
+    border-radius: 8px;
+    padding: 40px 20px;
+    text-align: center;
+    transition: border-color 0.3s ease;
+    cursor: pointer;
+}
+
+.upload-zone:hover,
+.upload-zone.dragover {
+    border-color: #007bff;
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+.upload-zone-content i {
+    font-size: 48px;
+    color: #6c757d;
+    margin-bottom: 15px;
+}
+
+.upload-preview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.preview-item {
+    position: relative;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+}
+
+.preview-item img {
+    width: 150px;
+    height: 100px;
+    object-fit: cover;
+}
+
+.preview-item .preview-info {
+    padding: 8px;
+    font-size: 12px;
+    background: #f8f9fa;
+}
+
+.preview-item .remove-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(220, 53, 69, 0.9);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+/* Animation de chargement */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
     width: 20px;
     height: 20px;
-    border: 3px solid #f3f3f3;
-    border-top: 3px solid #007bff;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #007bff;
     border-radius: 50%;
     animation: spin 1s linear infinite;
 }
@@ -832,790 +648,229 @@
     100% { transform: rotate(360deg); }
 }
 
-/* ===== STYLES POUR L'APERÇU VIDÉO ===== */
-#videoPreviewContent {
-    width: 100%;
-    text-align: center;
-}
-
-#videoPreviewContent .preview-placeholder {
-    background: #f8f9fa;
-    border: 2px dashed #dee2e6;
-    border-radius: 8px;
-    padding: 2rem;
-    color: #6c757d;
-    font-style: italic;
-}
-
-/* ===== AMÉLIORATIONS POUR L'ACCESSIBILITÉ ===== */
-.editor-content table th,
-.editor-content table td {
-    outline: none;
-}
-
-.editor-content table th:focus,
-.editor-content table td:focus {
-    box-shadow: inset 0 0 0 2px #007bff;
-    background: rgba(0, 123, 255, 0.1);
-}
-
-/* Focus visible pour les boutons de toolbar */
-.editor-btn:focus-visible {
-    outline: 2px solid #007bff;
-    outline-offset: 2px;
-}
-
-/* États d'erreur */
-.editor-content.error {
-    border-color: #dc3545;
-}
-
-.editor-content.error:focus {
-    border-color: #dc3545;
-    box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
-}
-
-/* Indicateur de contenu vide */
-.editor-content[data-placeholder]:empty::before {
-    content: attr(data-placeholder);
-    color: #6c757d;
-    font-style: italic;
-    pointer-events: none;
-}
-
-/* Styles pour l'impression */
-@media print {
-    .rich-editor-container {
-        border: none;
-        box-shadow: none;
-    }
-
-    .editor-toolbar {
-        display: none;
-    }
-
-    .editor-content {
-        padding: 0;
-        min-height: auto;
-    }
-
-    .image-resize-handle {
-        display: none !important;
-    }
-
-    .image-wrapper.selected {
-        outline: none;
-    }
-
-    .table-controls,
-    .video-wrapper {
-        display: none !important;
-    }
-
-    .editor-content .editor-table {
-        box-shadow: none;
-        border: 1px solid #000;
-    }
-
-    .editor-content .editor-table th,
-    .editor-content .editor-table td {
-        border: 1px solid #000;
-        background: white !important;
-    }
-}
-
-/* Accessibilité */
-@media (prefers-reduced-motion: reduce) {
-    * {
-        transition: none !important;
-        animation: none !important;
-    }
-}
-
-/* Mode sombre (optionnel) */
-@media (prefers-color-scheme: dark) {
-    .rich-editor-container {
-        background: #212529;
-        border-color: #495057;
-        color: #fff;
-    }
-
-    .editor-toolbar {
-        background: #343a40;
-        border-color: #495057;
-    }
-
-    .editor-btn {
-        color: #adb5bd;
-    }
-
-    .editor-btn:hover {
-        background: #495057;
-        color: #fff;
-    }
-
-    .editor-content {
-        background: #212529;
-        color: #fff;
-    }
-
-    .editor-content:empty:before {
-        color: #6c757d;
-    }
-
-    .editor-select {
-        background: #343a40;
-        border-color: #495057;
-        color: #fff;
-    }
-
-    .editor-content blockquote {
-        background: #343a40;
-        border-left-color: #0d6efd;
-    }
-
-    .editor-content pre {
-        background: #343a40;
-        border-color: #495057;
-    }
-
-    .editor-content code {
-        background: #343a40;
-    }
-}
-
-/* Améliorations UX pour l'éditeur riche - À ajouter à rich-editor.css */
-
-/* Animation pour les boutons actifs */
-.editor-btn.active {
-    transform: scale(0.95);
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
-}
-
-/* Feedback visuel pour les boutons pressés */
-.editor-btn:active {
-    transform: scale(0.92);
-    transition: transform 0.1s ease;
-}
-
-/* Amélioration des modales */
-.modal.fade {
-    transition: opacity 0.2s linear, transform 0.2s ease-out;
-}
-
-.modal.fade.show {
-    transform: none;
-}
-
-/* Focus amélioré dans les modales */
-.modal input:focus,
-.modal textarea:focus,
-.modal select:focus {
-    border-color: #0d6efd;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-    outline: none;
-}
-
-/* Indicateur de validation en temps réel */
-.modal .form-control.is-valid {
-    border-color: #198754;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='m2.3 6.73.5-.5L4.03 4.97 5.88 6.82a.25.25 0 0 0 .36 0l.5-.5a.25.25 0 0 0 0-.36L5.03 4.25 6.88 2.4a.25.25 0 0 0 0-.36l-.5-.5a.25.25 0 0 0-.36 0L4.27 3.29 2.4 1.42a.25.25 0 0 0-.36 0l-.5.5a.25.25 0 0 0 0 .36L3.29 4.03 1.42 5.88a.25.25 0 0 0 0 .36z'/%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right calc(0.375em + 0.1875rem) center;
-    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
-}
-
-.modal .form-control.is-invalid {
-    border-color: #dc3545;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='m5.8 4.6 2.4 2.4M8.2 4.6l-2.4 2.4'/%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right calc(0.375em + 0.1875rem) center;
-    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
-}
-
-/* Animation pour les aperçus */
-#tablePreview,
-#videoPreview,
-#imagePreview {
-    transition: all 0.3s ease;
-    border-radius: 8px;
-}
-
-#tablePreview:not(:empty),
-#videoPreview:not(:empty),
-#imagePreview:not(:empty) {
-    transform: scale(1.02);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-/* Loading state pour les boutons */
-.btn:disabled {
-    position: relative;
-    pointer-events: none;
-}
-
-.btn:disabled::after {
-    content: '';
-    position: absolute;
-    width: 16px;
-    height: 16px;
-    top: 50%;
-    left: 50%;
-    margin-left: -8px;
-    margin-top: -8px;
-    border: 2px solid transparent;
-    border-top-color: currentColor;
-    border-radius: 50%;
-    animation: btn-loading-spin 1s linear infinite;
-}
-
-@keyframes btn-loading-spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* Améliorations pour l'éditeur */
-.editor-content:focus {
-    box-shadow: inset 0 0 0 2px rgba(13, 110, 253, 0.25);
-    border-radius: 0 0 0.375rem 0.375rem;
-}
-
-/* Sélection améliorée dans l'éditeur */
-.editor-content ::selection {
-    background: rgba(13, 110, 253, 0.2);
-    color: inherit;
-}
-
-/* Animation pour les éléments insérés */
-.editor-content .table-main-wrapper,
-.editor-content .video-main-wrapper,
-.editor-content .image-wrapper {
-    animation: insertFadeIn 0.4s ease-out;
-}
-
-@keyframes insertFadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px) scale(0.98);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-/* Hover effects améliorés */
-.editor-content table:hover {
-    transform: translateY(-1px);
+/* Images interactives dans l'éditeur - Version 1.4.0 */
+.editor-content img.interactive-image {
+    cursor: pointer;
     transition: all 0.2s ease;
-}
-
-.editor-content .video-wrapper:hover iframe {
-    transform: scale(1.02);
-    transition: all 0.3s ease;
-}
-
-/* Responsive improvements */
-@media (max-width: 768px) {
-    .modal-lg {
-        max-width: 95%;
-        margin: 1rem auto;
-    }
-
-    .modal-body {
-        padding: 1rem;
-    }
-
-    .btn-group {
-        flex-wrap: wrap;
-        gap: 0.25rem;
-    }
-
-    .btn-group .btn {
-        flex: 1 1 auto;
-        min-width: 0;
-    }
-}
-
-/* Accessibilité améliorée */
-.editor-btn:focus-visible {
-    outline: 2px solid #0d6efd;
-    outline-offset: 2px;
     border-radius: 4px;
+    max-width: 100%;
+    height: auto;
 }
 
-/* Indicateur de succès pour les actions */
-.success-flash {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: #198754;
-    color: white;
-    padding: 12px 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    z-index: 10000;
-    animation: successSlideIn 0.3s ease-out;
+.editor-content img.interactive-image:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-@keyframes successSlideIn {
-    from {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
+.editor-content img.interactive-image.selected {
+    outline: 3px solid #007bff;
+    outline-offset: 2px;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
 }
 
-/* Mode sombre pour l'éditeur (si applicable) */
-@media (prefers-color-scheme: dark) {
-    .rich-editor-container {
-        background: #2d3748;
-        border-color: #4a5568;
-        color: #e2e8f0;
-    }
-
-    .editor-toolbar {
-        background: #1a202c;
-        border-color: #4a5568;
-    }
-
-    .editor-content {
-        background: #2d3748;
-        color: #e2e8f0;
-    }
-
-    .editor-content:empty:before {
-        color: #a0aec0;
-    }
-}
-
-/* Correction pour les images */
+/* Wrapper pour les images avec poignées - Version stable avec alignement */
 .editor-content .image-wrapper {
     position: relative;
     display: inline-block;
     max-width: 100%;
-    margin: 5px;
-    line-height: 0; /* Évite les espaces indésirables */
+    margin: 10px 0;
+    padding: 0;
+    vertical-align: baseline;
+    /* Force le wrapper à rester en place */
+    transform: translateZ(0); /* Crée un contexte de pile */
+}
+
+/* Alignements des wrappers - Classes directes */
+.editor-content .image-wrapper.align-left {
+    float: left;
+    margin: 5px 15px 15px 5px;
+    clear: left;
+    max-width: 50%;
+    display: block;
+}
+
+.editor-content .image-wrapper.align-right {
+    float: right;
+    margin: 5px 5px 15px 15px;
+    clear: right;
+    max-width: 50%;
+    display: block;
+}
+
+.editor-content .image-wrapper.align-center {
+    display: block;
+    margin: 15px auto;
+    float: none;
+    text-align: center;
 }
 
 .editor-content .image-wrapper img {
     display: block;
-    max-width: 100%;
-    height: auto;
-    border-radius: 4px;
-}
-
-.editor-content .image-wrapper.selected {
-    outline: 2px solid #007bff;
-    outline-offset: 2px;
-}
-
-.editor-content .image-resize-handle {
-    position: absolute;
-    width: 12px;
-    height: 12px;
-    background: #007bff;
-    border: 2px solid white;
-    cursor: nw-resize;
-    bottom: -6px;
-    right: -6px;
-    border-radius: 2px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-    display: none;
-    z-index: 10;
-}
-
-.editor-content .image-resize-handle:hover {
-    background: #0056b3;
-    transform: scale(1.1);
-}
-
-.editor-content {
-    min-height: 300px;
-    max-height: 70vh; /* Limiter à 70% de la hauteur de l'écran */
-    padding: 15px;
-    outline: none;
-    line-height: 1.6;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    font-size: 16px;
-    color: #212529;
-    overflow-y: auto;
-    overflow-x: hidden;
-}
-
-/* Assurer qu'il y a toujours un peu d'espace après le contenu */
-.editor-content::after {
-    content: "";
-    display: block;
-    height: 50px;
-    clear: both;
-}
-
-/* Assurer que les éléments flottants ne cassent pas le scroll */
-.editor-content::after {
-    content: "";
-    display: table;
-    clear: both;
-}
-
-.editor-btn.active {
-    background: #007bff !important;
-    color: white !important;
-    border-color: #007bff !important;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
-}
-
-.editor-btn:focus {
-    outline: 2px solid #007bff;
-    outline-offset: 2px;
-}
-
-/* Assurer que l'éditeur est bien editable */
-.editor-content[contenteditable="true"] {
-    cursor: text;
-}
-
-.editor-content[contenteditable="true"]:focus {
-    outline: none;
-    box-shadow: inset 0 0 0 2px rgba(13, 110, 253, 0.25);
-}
-
-.editor-content .image-resize-handle {
-    position: absolute;
-    width: 12px;
-    height: 12px;
-    background: #007bff;
-    border: 2px solid white;
-    cursor: nw-resize;
-    bottom: -6px;
-    right: -6px;
-    border-radius: 50%;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    display: none;
-    z-index: 10;
-    transition: all 0.2s ease;
-}
-
-.editor-content .image-resize-handle:hover {
-    background: #0056b3;
-    transform: scale(1.2);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-}
-
-.editor-content .image-wrapper.selected .image-resize-handle {
-    display: block;
-}
-
-/* Améliorer la visibilité des boutons actifs */
-.editor-btn.active {
-    background: #007bff !important;
-    color: white !important;
-    border-color: #007bff !important;
-    transform: scale(0.95);
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2) !important;
-}
-
-/* S'assurer que l'éditeur est bien focusable */
-.editor-content[contenteditable="true"] {
-    cursor: text;
-    outline: none;
-}
-
-.editor-content[contenteditable="true"]:focus {
-    outline: none;
-    border: 2px solid #007bff;
-}
-
-/* Boutons actifs plus visibles */
-.editor-btn.active {
-    background: #007bff !important;
-    color: white !important;
-    border-color: #007bff !important;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2) !important;
-}
-
-/* ===== CORRECTIONS CSS POUR LES VIDÉOS ===== */
-/* À ajouter/remplacer dans rich-editor.css */
-
-/* Styles pour les vidéos YouTube corrigés */
-.editor-content .video-main-wrapper {
-    margin: 20px 0;
-    clear: both;
-    display: block;
+    margin: 0;
+    padding: 0;
+    vertical-align: baseline;
+    /* Empêche l'image de bouger */
+    position: static;
+    top: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    /* L'image remplit son wrapper */
     width: 100%;
-    position: relative;
+    height: auto;
+    float: none;
 }
 
-.editor-content .video-wrapper {
-    position: relative;
-    display: block;
-    margin-bottom: 15px;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    /* CORRECTION : Forcer position relative pour les poignées */
-    position: relative !important;
+/* Pendant le redimensionnement - stabilisation */
+.editor-content .image-wrapper.resizing {
+    /* Maintient la position exacte */
+    transform: translateZ(0);
+    will-change: auto; /* Optimise les performances */
 }
 
-/* Vidéos responsives avec ratio 16:9 */
-.editor-content .video-wrapper.responsive {
-    height: 0 !important;
-    padding-bottom: 56.25% !important;
+.editor-content .image-wrapper.resizing img {
+    /* L'image reste parfaitement en place */
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
 }
 
-.editor-content .video-wrapper.responsive iframe {
-    position: absolute !important;
-    top: 0;
-    left: 0;
-    width: 100% !important;
-    height: 100% !important;
-    border: none;
-    border-radius: 8px;
-}
-
-/* Styles pour les vidéos avec dimensions fixes (non-responsive) */
-.editor-content .video-wrapper.fixed-size {
-    height: auto !important;
-    padding-bottom: 0 !important;
-    display: inline-block;
-    position: relative !important;
-}
-
-.editor-content .video-wrapper.fixed-size iframe {
-    position: relative !important;
-    display: block;
-    border: none;
-    border-radius: 8px;
-}
-
-/* Alignement des vidéos - CORRIGÉ */
-.editor-content .video-wrapper.center {
-    margin: 20px auto 15px auto !important;
-    display: block !important;
-    text-align: center;
-    float: none !important;
-}
-
-.editor-content .video-wrapper.float-left {
-    float: left !important;
-    margin: 5px 20px 15px 0 !important;
-    max-width: 400px;
-}
-
-.editor-content .video-wrapper.float-right {
-    float: right !important;
-    margin: 5px 0 15px 20px !important;
-    max-width: 400px;
-}
-
-/* Poignées de redimensionnement pour vidéos - CORRIGÉES */
-.editor-content .video-resize-handle {
-    position: absolute !important;
-    width: 12px !important;
-    height: 12px !important;
-    background: #dc3545 !important;
-    border: 2px solid white !important;
-    cursor: nw-resize !important;
-    bottom: -6px !important;
-    right: -6px !important;
-    border-radius: 50% !important;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
-    display: none !important;
-    z-index: 10 !important;
-    transition: all 0.2s ease !important;
-}
-
-.editor-content .video-resize-handle:hover {
-    background: #c82333 !important;
-    transform: scale(1.2) !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4) !important;
-}
-
-/* État sélectionné pour les vidéos */
-.editor-content .selected-video {
-    outline: 2px solid #dc3545 !important;
-    outline-offset: 2px !important;
-}
-
-.editor-content .selected-video .video-resize-handle {
-    display: block !important;
-}
-
-/* Effet de survol pour les vidéos */
-.editor-content .video-wrapper:hover {
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2) !important;
-    transform: translateY(-2px) !important;
-    transition: all 0.3s ease !important;
-}
-
-/* Correction pour éviter les problèmes de float */
-.editor-content .video-main-wrapper::after {
-    content: "" !important;
-    display: table !important;
-    clear: both !important;
-}
-
-/* Paragraphes après vidéos */
-.editor-content .video-main-wrapper > p:last-child {
-    margin: 10px 0 !important;
-    min-height: 20px !important;
-    line-height: 1.5 !important;
-    clear: both !important;
-}
-
-/* Responsive design pour les vidéos */
-@media (max-width: 768px) {
-    .editor-content .video-wrapper {
-        margin: 20px 0 !important;
-        float: none !important;
-        max-width: 100% !important;
-        width: 100% !important;
-    }
-
-    .editor-content .video-wrapper.float-left,
-    .editor-content .video-wrapper.float-right {
-        float: none !important;
-        margin: 20px auto !important;
-        display: block !important;
-    }
-
-    .editor-content .video-resize-handle {
-        position: absolute;
-        width: 12px;
-        height: 12px;
-        background: #dc3545;
-        border: 2px solid white;
-        cursor: nw-resize;
-        bottom: -6px;
-        right: -6px;
-        border-radius: 50%;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        display: none;
-        z-index: 10;
-        transition: all 0.2s ease;
-    }
-}
-
-/* Animation pour les vidéos insérées */
-.editor-content .video-main-wrapper {
-    animation: videoFadeIn 0.4s ease-out;
-}
-
-@keyframes videoFadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px) scale(0.98);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-/* Styles pour l'édition des vidéos */
-.editor-content .video-wrapper[contenteditable="false"] {
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-}
-
-/* Amélioration du focus sur les vidéos */
-.editor-content .video-wrapper:focus-within {
-    outline: 2px solid #007bff;
-    outline-offset: 2px;
-}
-
-/* Styles pour les vidéos en mode édition */
-.editor-content .video-wrapper.editing {
-    border: 2px dashed #007bff;
-    background: rgba(0, 123, 255, 0.1);
-}
-
-/* Correction pour l'iframe qui peut bloquer les clics */
-.editor-content .video-wrapper iframe {
-    pointer-events: auto;
-    /* Permet l'interaction avec la vidéo */
-}
-
-.editor-content .video-wrapper.selected iframe {
-    pointer-events: none;
-    /* Désactive l'interaction pendant la sélection */
-}
-
-/* Styles pour les dimensions fixes */
-.editor-content .video-wrapper[data-width] {
-    width: attr(data-width px) !important;
-}
-
-.editor-content .video-wrapper[data-height] {
-    height: attr(data-height px) !important;
-}
-
-/* Correction pour le contenu après les vidéos */
-.editor-content .video-main-wrapper + p:empty {
-    min-height: 1em;
-    margin: 1em 0;
-}
-
-/* Amélioration de la sélection */
-.editor-content .video-main-wrapper:hover .video-resize-handle {
-    opacity: 0.7;
-}
-
-.editor-content .selected-video .video-resize-handle {
-    opacity: 1 !important;
-}
-
-/* Styles pour différents états */
-.editor-content .video-wrapper.loading {
-    background: #f8f9fa;
+/* Poignée de redimensionnement - Version améliorée */
+.image-resize-handle {
+    position: absolute;
+    bottom: -8px;
+    right: -8px;
+    width: 16px;
+    height: 16px;
+    background: #007bff;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    cursor: se-resize;
+    z-index: 1001;
+    font-size: 10px;
+    color: white;
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 200px;
+    font-weight: bold;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    transition: all 0.2s ease;
 }
 
-.editor-content .video-wrapper.loading::before {
-    content: "Chargement de la vidéo...";
-    color: #6c757d;
-    font-style: italic;
+.image-resize-handle:hover {
+    background: #0056b3;
+    transform: scale(1.1);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
 }
 
-/* Correction pour les conflits avec les autres éléments */
-.editor-content .video-main-wrapper {
-    isolation: isolate;
-    /* Créer un nouveau contexte de stacking */
+/* Empêcher tout déplacement pendant le redimensionnement - Version renforcée */
+.editor-content.resizing {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    /* Stabilise le contenu */
+    overflow-anchor: none;
 }
 
-/* Amélioration de l'accessibilité */
-.editor-content .video-resize-handle:focus {
-    outline: 2px solid #007bff;
-    outline-offset: 2px;
+.editor-content.resizing * {
+    pointer-events: none;
+    /* Empêche tous les éléments de bouger */
+    position: static !important;
 }
 
-/* Styles pour l'impression */
-@media print {
-    .editor-content .video-resize-handle {
-        display: none !important;
+.editor-content.resizing .image-resize-handle {
+    pointer-events: all;
+    /* Seule la poignée reste interactive */
+    position: absolute !important;
+}
+
+/* Stabilisation spécifique des images */
+.editor-content.resizing img {
+    /* Force l'image à rester à sa place */
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
+    transition: none !important;
+}
+
+/* Indicateurs de focus */
+.editor-content:focus {
+    box-shadow: inset 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+/* Styles pour les liens */
+.editor-content a {
+    color: #007bff;
+    text-decoration: underline;
+}
+
+.editor-content a:hover {
+    color: #0056b3;
+    text-decoration: none;
+}
+
+/* Messages d'erreur dans l'éditeur */
+.editor-error {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+    padding: 10px;
+    border-radius: 4px;
+    margin: 10px 0;
+    font-size: 14px;
+}
+
+/* Styles pour le texte sélectionné */
+.editor-content ::selection {
+    background-color: rgba(0, 123, 255, 0.2);
+}
+
+/* Styles pour les listes imbriquées */
+.editor-content ul ul,
+.editor-content ol ol,
+.editor-content ul ol,
+.editor-content ol ul {
+    margin: 0.5em 0;
+}
+
+/* Ajustements pour les petits écrans */
+@media (max-width: 480px) {
+    .rich-editor-container {
+        margin: 10px 0;
+        border-radius: 4px;
     }
-
-    .editor-content .selected-video {
-        outline: none !important;
+    
+    .editor-content {
+        padding: 12px;
+        min-height: 250px;
     }
-
-    .editor-content .video-wrapper {
-        box-shadow: none !important;
-        transform: none !important;
+    
+    .editor-toolbar {
+        padding: 6px;
+        flex-direction: column;
+        align-items: stretch;
     }
-}
-
-.editor-content .video-main-wrapper {
-    display: inline-block !important;
-    width: auto !important;
-    margin: 10px !important;
-    clear: none !important;
+    
+    .editor-group {
+        justify-content: center;
+        border-right: none;
+        border-bottom: 1px solid #dee2e6;
+        padding: 4px 0;
+    }
+    
+    .editor-group:last-child {
+        border-bottom: none;
+    }
 }

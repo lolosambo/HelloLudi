@@ -68,16 +68,21 @@ class Post
     #[ORM\Column(type: 'boolean', nullable: false)]
     private ?bool $onLine = false;
 
-    #[ORM\OneToMany(mappedBy: 'post', targetEntity: Comment::class)]
+    #[ORM\OneToMany(mappedBy: 'post', targetEntity: Comment::class, cascade: ['remove'])]
     private Collection $comments;
 
     #[ORM\OneToMany(mappedBy: 'post', targetEntity: Rating::class, cascade: ['remove'])]
     private Collection $ratings;
 
+    #[ORM\OneToMany(mappedBy: 'post', targetEntity: PostImage::class, cascade: ['persist', 'remove'])]
+    #[ORM\OrderBy(['sortOrder' => 'ASC'])]
+    private Collection $postImages;
+
     public function __construct()
     {
         $this->comments = new ArrayCollection();
         $this->ratings = new ArrayCollection();
+        $this->postImages = new ArrayCollection();
     }
 
     // Getters and setters...
@@ -287,6 +292,52 @@ class Post
         }
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, PostImage>
+     */
+    public function getPostImages(): Collection
+    {
+        return $this->postImages;
+    }
+
+    public function addPostImage(PostImage $postImage): self
+    {
+        if (!$this->postImages->contains($postImage)) {
+            $this->postImages->add($postImage);
+            $postImage->setPost($this);
+        }
+
+        return $this;
+    }
+
+    public function removePostImage(PostImage $postImage): self
+    {
+        if ($this->postImages->removeElement($postImage)) {
+            // set the owning side to null (unless already changed)
+            if ($postImage->getPost() === $this) {
+                $postImage->setPost(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Retourne true si ce post a des images de galerie
+     */
+    public function hasGalleryImages(): bool
+    {
+        return !$this->postImages->isEmpty();
+    }
+
+    /**
+     * Retourne le nombre d'images dans la galerie
+     */
+    public function getGalleryImagesCount(): int
+    {
+        return $this->postImages->count();
     }
 }
 

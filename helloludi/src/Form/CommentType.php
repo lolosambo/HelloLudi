@@ -23,8 +23,7 @@ class CommentType extends AbstractType
                 'label' => 'Commentaire',
                 'attr' => [
                     'rows' => 15,
-                    'id' => 'comment_content',
-                    'class' => 'froala'
+                    'id' => 'comment_content'
                 ],
             ])
             ->add('parent', HiddenType::class, [

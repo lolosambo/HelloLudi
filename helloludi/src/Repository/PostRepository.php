@@ -40,7 +40,7 @@ class PostRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function find4LastPosts(): array
+    public function find8LastPosts(): array
     {
         return $this->createQueryBuilder('p')
             ->where("p.category != :whoAmI ")
@@ -48,7 +48,7 @@ class PostRepository extends ServiceEntityRepository
             ->andWhere("p.onLine != :onLine")
             ->setParameter("onLine", false)
             ->orderBy('p.creationDate', 'DESC')
-            ->setMaxResults(4)
+            ->setMaxResults(8)
             ->getQuery()
             ->getResult();
     }

@@ -13,6 +13,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
@@ -47,6 +48,38 @@ class PostType extends AbstractType
                     ])
                 ],
             ])
+            
+            // Champ pour les images multiples de la galerie (pour la catégorie photo)
+            ->add('galleryImages', FileType::class, [
+                'label' => 'Images de la galerie',
+                'multiple' => true,
+                'mapped' => false,
+                'required' => false,
+                'attr' => [
+                    'accept' => 'image/*',
+                    'class' => 'gallery-file-input',
+                    'data-max-files' => '50',
+                    'style' => 'display: none;' // Caché par défaut, sera affiché par JS pour la catégorie photo
+                ],
+                'constraints' => [
+                    new All([
+                        'constraints' => [
+                            new File([
+                                'maxSize' => '5M',
+                                'mimeTypes' => [
+                                    'image/jpeg',
+                                    'image/png',
+                                    'image/gif',
+                                    'image/webp'
+                                ],
+                                'mimeTypesMessage' => 'Veuillez télécharger une image valide (JPG, PNG, GIF ou WebP).',
+                            ])
+                        ]
+                    ])
+                ],
+                'help' => 'Vous pouvez sélectionner plusieurs images à la fois (max 50 images, 5MB chacune)'
+            ])
+            
             ->add("category", ChoiceType::class, [
                 'choices' => [
                     "Recette" => "recipe",

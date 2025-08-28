@@ -4,7 +4,29 @@
     {{ parent() }}
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/comments.css') }}">
+    <link href="{{ asset('css/post-content-styles.css') }}" rel="stylesheet">
     <style>
+        /* SUPPRESSION FORCÉE DES AVATARS DE COMMENTAIRES */
+        .comment-avatar,
+        .reply-avatar {
+            display: none !important;
+            visibility: hidden !important;
+            width: 0 !important;
+            height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* Ajustement du header sans avatar */
+        .comment-header {
+            gap: 0 !important;
+        }
+
+        .comment-meta {
+            width: 100% !important;
+        }
+
         /* Container principal avec design moderne - couleurs respectées */
         .post-detail-container {
             max-width: 1000px;
@@ -29,7 +51,7 @@
         /* Header de l'article */
         .post-header {
             padding: 3rem 3rem 2rem 3rem;
-            background: linear-gradient(135deg, #8b785d 0%, #a0926f 100%);
+            background: linear-gradient(135deg, #8b785d 0%, #332500 100%);
             color: white;
             position: relative;
             overflow: hidden;
@@ -131,53 +153,6 @@
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
 
-        /* Image d'illustration */
-        .post-image-section {
-            position: relative;
-            margin: 0;
-            padding: 0;
-        }
-
-        .post-image-container {
-            position: relative;
-            width: 100%;
-            height: 400px;
-            overflow: hidden;
-            background: #f5f4f2;
-        }
-
-        .post-featured-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.3s ease;
-        }
-
-        .post-featured-image:hover {
-            transform: scale(1.05);
-        }
-
-        .image-overlay {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(transparent, rgba(139, 120, 93, 0.8));
-            padding: 2rem;
-            transform: translateY(100%);
-            transition: transform 0.3s ease;
-        }
-
-        .post-image-container:hover .image-overlay {
-            transform: translateY(0);
-        }
-
-        .image-caption {
-            color: white;
-            font-weight: 600;
-            font-size: 1.1rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-        }
         .post-content-wrapper {
             padding: 3rem;
             background: #f5f4f2;
@@ -188,10 +163,105 @@
             line-height: 1.8;
             margin-bottom: 2rem;
             background: white;
-            padding: 2rem;
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(139, 120, 93, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .post-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #ff6b6b, #8b785d, #d4c4a8);
+        }
+
+        /* Galerie d'images */
+        .gallery-section {
+            padding: 0;
+            margin: 0;
+            background: #f5f4f2;
+        }
+
+        .photo-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+            padding: 0;
+            background: transparent;
+        }
+
+        .gallery-item-display {
+            position: relative;
+            aspect-ratio: 1;
             border-radius: 15px;
-            border-left: 5px solid #ff6b6b;
-            box-shadow: 0 5px 15px rgba(139, 120, 93, 0.1);
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(139, 120, 93, 0.2);
+        }
+
+        .gallery-item-display:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 30px rgba(139, 120, 93, 0.3);
+        }
+
+        .gallery-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-item-display:hover .gallery-image {
+            transform: scale(1.1);
+        }
+
+        .gallery-item-display::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255, 107, 107, 0.1), rgba(139, 120, 93, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1;
+        }
+
+        .gallery-item-display:hover::before {
+            opacity: 1;
+        }
+
+        .gallery-item-display::after {
+            content: '🔍';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 2;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .gallery-item-display:hover::after {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1.2);
+        }
+
+        /* Actions et contenu après galerie */
+        .post-actions-wrapper {
+            padding: 3rem;
+            background: #f5f4f2;
         }
 
         /* Boutons d'action modernes */
@@ -562,6 +632,67 @@
             color: white;
         }
 
+        /* Modale pour les images */
+        .image-modal .modal-dialog {
+            max-width: 90vw;
+            margin: 1rem auto;
+            display: flex;
+            align-items: center;
+            min-height: calc(100vh - 2rem);
+        }
+
+        .image-modal .modal-content {
+            background: transparent;
+            border: none;
+            box-shadow: none;
+        }
+
+        .image-modal .modal-body {
+            padding: 0;
+            text-align: center;
+            position: relative;
+        }
+
+        .image-modal .modal-image {
+            max-width: 100%;
+            max-height: 80vh;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+            object-fit: contain;
+        }
+
+        .image-modal .btn-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            z-index: 1060;
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .image-modal .btn-close:hover {
+            background: rgba(255, 107, 107, 0.8);
+            transform: scale(1.1);
+        }
+
+        .image-modal.show {
+            display: block !important;
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        .image-modal .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .post-detail-container {
@@ -571,6 +702,7 @@
 
             .post-header,
             .post-content-wrapper,
+            .post-actions-wrapper,
             .comments-section {
                 padding: 1.5rem;
             }
@@ -599,6 +731,22 @@
 
             .post-image-container {
                 height: 250px;
+            }
+
+            .photo-gallery {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+                gap: 0.5rem;
+                margin-top: 1rem;
+            }
+            
+            .gallery-header {
+                padding: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .photo-gallery {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
 
@@ -689,7 +837,26 @@
             <div class="post-content">
                 {{ post.getContent() | raw }}
             </div>
+            
+            <!-- Galerie d'images intégrée pour les posts de type photo -->
+            {% if post.category == 'photo' and post.hasGalleryImages() %}
+                <div class="photo-gallery">
+                    {% for postImage in post.postImages %}
+                        <div class="gallery-item-display">
+                            <img src="{{ postImage.imageUrl }}" 
+                                 alt="{{ postImage.alt ? postImage.alt : 'Image de galerie' }}" 
+                                 class="gallery-image"
+                                 style="cursor: pointer;"
+                                 data-image-src="{{ postImage.imageUrl }}"
+                                 data-image-alt="{{ postImage.alt ? postImage.alt : 'Image de galerie' }}">
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
 
+        <!-- Actions et contenu après galerie -->
+        <div class="post-actions-wrapper">
             <!-- Boutons d'action -->
             <div class="action-buttons">
                 <a href="{{ path("homepage") }}" class="btn-modern btn-salmon interactive">
@@ -874,115 +1041,254 @@
         </div>
     </div>
 
+    <!-- Modale avec navigation pour afficher les images de la galerie -->
+    <div id="imageModal" class="image-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999;">
+        <div style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; position: relative;">
+            <!-- Flèche précédente -->
+            <button id="prevImage" style="position: absolute; left: 30px; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.8); border: none; border-radius: 50%; width: 50px; height: 50px; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; z-index: 10000;">❮</button>
+            
+            <!-- Image principale -->
+            <img id="modalImage" src="" alt="" style="max-width: 85%; max-height: 85%; border-radius: 15px; object-fit: contain; box-shadow: 0 10px 30px rgba(0,0,0,0.8);">
+            
+            <!-- Flèche suivante -->
+            <button id="nextImage" style="position: absolute; right: 30px; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.8); border: none; border-radius: 50%; width: 50px; height: 50px; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; z-index: 10000;">❯</button>
+            
+            <!-- Bouton fermer -->
+            <button type="button" class="btn-close" style="position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.8); border: none; border-radius: 50%; width: 45px; height: 45px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;">&times;</button>
+            
+            <!-- Compteur d'images -->
+            <div id="imageCounter" style="position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); color: white; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 500;"></div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
     <script>
-        // Initialisation Froala pour les commentaires
-        new FroalaEditor('.froala', {
-            toolbarInline: true,
-            language: 'fr',
-            placeholderText: 'Écrivez votre contenu ici...',
-            imageUploadURL: '/upload_image',
-            imageUploadParams: { id: 'my_editor' },
-            imageMaxSize: 5 * 1024 * 1024,
-            imageAllowedTypes: ['jpeg', 'jpg', 'png', 'gif', 'bmp'],
+    /**
+     * Galerie photo avec navigation - Version finale
+     */
+    console.log('🎨 Galerie photo - Initialisation');
+    
+    let currentIndex = 0;
+    let images = [];
+    
+    // Initialisation après chargement
+    setTimeout(() => {
+        initGallery();
+    }, 500);
+    
+    function initGallery() {
+        // Éléments DOM
+        const modal = document.getElementById('imageModal');
+        const modalImg = document.getElementById('modalImage');
+        const prevBtn = document.getElementById('prevImage');
+        const nextBtn = document.getElementById('nextImage');
+        const counter = document.getElementById('imageCounter');
+        
+        // Collecter les images
+        const galleryImages = document.querySelectorAll('.gallery-image');
+        images = [];
+        galleryImages.forEach((img, i) => {
+            const src = img.getAttribute('data-image-src') || img.src;
+            images.push({ src: src, alt: `Image ${i + 1}` });
         });
-
-        // Système de notation par étoiles
-        const csrfToken = "{{ csrf_token('rate') }}";
-        document.addEventListener('DOMContentLoaded', () => {
-            const container = document.querySelector('.star-rating');
-
-            if (!container) return;
-
-            // Effet de survol
-            container.addEventListener('mouseover', event => {
-                if (event.target.classList.contains('fa-star')) {
-                    highlightStars(container, event.target.dataset.value);
-                }
+        
+        if (!images.length) {
+            console.log('⚠️ Pas d\'images de galerie trouvées');
+            return;
+        }
+        
+        console.log(`✅ Galerie initialisée avec ${images.length} images`);
+        
+        // Créer le bouton de fermeture personnalisé
+        const customCloseBtn = createCustomCloseButton();
+        
+        // Fonctions principales
+        function ouvrir(index) {
+            currentIndex = index;
+            if (modalImg && images[index]) {
+                modalImg.src = images[index].src;
+                modalImg.alt = images[index].alt;
+            }
+            if (modal) {
+                modal.style.display = 'block';
+                modal.style.position = 'fixed';
+                modal.style.top = '0';
+                modal.style.left = '0';
+                modal.style.width = '100%';
+                modal.style.height = '100%';
+                modal.style.zIndex = '9999';
+                document.body.style.overflow = 'hidden';
+            }
+            if (counter) {
+                counter.textContent = `${index + 1} / ${images.length}`;
+                counter.style.display = 'block';
+            }
+            // Gérer les flèches de navigation
+            if (prevBtn) prevBtn.style.display = images.length > 1 ? 'flex' : 'none';
+            if (nextBtn) nextBtn.style.display = images.length > 1 ? 'flex' : 'none';
+            
+            // Afficher le bouton de fermeture
+            customCloseBtn.style.display = 'flex';
+        }
+        
+        function fermer() {
+            if (modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+            customCloseBtn.style.display = 'none';
+        }
+        
+        function precedent() {
+            currentIndex = (currentIndex - 1 + images.length) % images.length;
+            ouvrir(currentIndex);
+        }
+        
+        function suivant() {
+            currentIndex = (currentIndex + 1) % images.length;
+            ouvrir(currentIndex);
+        }
+        
+        // Attacher les événements sur les miniatures
+        const galleryItems = document.querySelectorAll('.gallery-item-display');
+        galleryItems.forEach((item, i) => {
+            item.style.cursor = 'pointer';
+            
+            // Effet hover
+            item.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-3px) scale(1.02)';
+                this.style.transition = 'all 0.3s ease';
             });
-
-            // Clic sur une étoile
-            document.querySelectorAll('.fa-star').forEach(star => {
-                star.addEventListener('click', event => {
-                    const rating = parseInt(star.dataset.value, 10);
-                    const postId = star.closest('.star-rating').dataset.postId;
-                    sendRating(rating, postId);
-                });
+            
+            item.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
             });
-
-            // Reset au survol
-            container.addEventListener('mouseleave', () => {
-                resetStars(container);
-            });
-
-            function resetStars(container) {
-                container.querySelectorAll('.fa-star').forEach(star => {
-                    star.classList.remove('hover');
-                });
-            }
-
-            function highlightStars(container, value) {
-                container.querySelectorAll('.fa-star').forEach(star => {
-                    if (star.dataset.value <= value) {
-                        star.classList.add('hover');
-                    } else {
-                        star.classList.remove('hover');
-                    }
-                });
-            }
-
-            function sendRating(rating, postId) {
-                fetch(`/post/${postId}/rate`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRF-TOKEN': csrfToken,
-                    },
-                    body: JSON.stringify({rating: rating})
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.status === 'success') {
-                            updateStarRating(rating, postId);
-                            setTimeout(() => {
-                                window.location.reload();
-                            }, 1000);
-                        } else {
-                            console.error('Erreur serveur lors de l\'enregistrement du vote');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Erreur lors de l\'enregistrement de la note :', error);
-                    });
-            }
-
-            function updateStarRating(rating, postId) {
-                const container = document.querySelector('.star-rating');
-                if (!container) return;
-
-                container.style.pointerEvents = 'none';
-
-                container.querySelectorAll('.fa-star').forEach(star => {
-                    if (parseInt(star.dataset.value) <= rating) {
-                        star.classList.add('selected');
-                    } else {
-                        star.classList.remove('selected');
-                    }
-                });
-
-                // Message de remerciement
-                const ratingMessage = container.closest('.rating-section').querySelector('.rating-message');
-                if (ratingMessage) {
-                    ratingMessage.innerHTML = `<p><strong>🎉 Merci ! Vous avez donné ${rating} étoile(s)</strong></p>
-                                             <p>Votre avis compte beaucoup ! 💙</p>`;
-                }
-            }
-
-            // Animation d'apparition progressive des commentaires
-            const comments = document.querySelectorAll('.comment');
-            comments.forEach((comment, index) => {
-                comment.style.animationDelay = `${index * 0.1}s`;
+            
+            // Clic pour ouvrir
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                ouvrir(i);
             });
         });
+        
+        // Navigation avec les flèches
+        if (prevBtn) {
+            prevBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                precedent();
+            });
+        }
+        
+        if (nextBtn) {
+            nextBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                suivant();
+            });
+        }
+        
+        // Fermer en cliquant sur le fond
+        if (modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    fermer();
+                }
+            });
+        }
+        
+        // Double-clic pour fermer (solution alternative)
+        if (modal) {
+            modal.addEventListener('dblclick', function(e) {
+                fermer();
+            });
+        }
+        
+        // Navigation clavier
+        document.addEventListener('keydown', function(e) {
+            if (modal && modal.style.display === 'block') {
+                switch(e.key) {
+                    case 'Escape':
+                        fermer();
+                        break;
+                    case 'ArrowLeft':
+                        precedent();
+                        break;
+                    case 'ArrowRight':
+                        suivant();
+                        break;
+                    case ' ':
+                        e.preventDefault();
+                        suivant();
+                        break;
+                }
+            }
+        });
+    }
+    
+    /**
+     * Crée un bouton de fermeture personnalisé
+     */
+    function createCustomCloseButton() {
+        const closeBtn = document.createElement('button');
+        closeBtn.innerHTML = '×';
+        closeBtn.setAttribute('aria-label', 'Fermer la galerie');
+        closeBtn.id = 'customGalleryCloseBtn';
+        
+        // Styles élégants
+        const styles = {
+            position: 'fixed',
+            top: '20px',
+            right: '20px',
+            zIndex: '999999',
+            width: '50px',
+            height: '50px',
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            color: 'white',
+            border: 'none',
+            borderRadius: '50%',
+            cursor: 'pointer',
+            fontSize: '24px',
+            fontWeight: 'bold',
+            display: 'none',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'all 0.3s ease',
+            boxShadow: '0 2px 10px rgba(0, 0, 0, 0.3)'
+        };
+        
+        Object.assign(closeBtn.style, styles);
+        
+        // Effets hover
+        closeBtn.addEventListener('mouseenter', function() {
+            this.style.backgroundColor = 'rgba(255, 69, 69, 0.9)';
+            this.style.transform = 'scale(1.1)';
+        });
+        
+        closeBtn.addEventListener('mouseleave', function() {
+            this.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+            this.style.transform = 'scale(1)';
+        });
+        
+        // Événement de fermeture
+        closeBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            // Trouver la fonction fermer dans le scope global
+            const modal = document.getElementById('imageModal');
+            if (modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+            this.style.display = 'none';
+        });
+        
+        // Ajouter au body
+        document.body.appendChild(closeBtn);
+        
+        return closeBtn;
+    }
     </script>
 {% endblock %}

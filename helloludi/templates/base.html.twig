@@ -17,7 +17,7 @@
               href='https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-straight/css/uicons-regular-straight.css'>
 
         <link rel="stylesheet" href="/css/bootstrap.min.css">
-        <link href="/css/rich-editor.css" rel="stylesheet">
+        <link rel="stylesheet" href="/css/footer.css">
         {% if app.user and app.user.theme == "brown" %}
             <link rel="stylesheet" href="/css/style.css">
         {% elseif app.user and app.user.theme == "white" %}
@@ -211,50 +211,88 @@
     </div>
 
 
+    <!-- Footer moderne et fun -->
     <div class="row gx-0 blog-footer">
-        <div class="col-4 footer-part text-center">
-            <h4>Mes évènement à venir</h4>
+        <!-- Section Événements -->
+        <div class="col-12 col-md-4 footer-part text-center">
+            <h4>Mes événements à venir</h4>
             {% set now = "now"|date("Y-m-d H:i:s") %}
-            <ul style="font-size: 12px; text-align: left;">
+            <ul>
                 {% if eventsPosts is defined %}
                     {% for eventsPost in eventsPosts %}
                         {% set postDate = eventsPost.date|date("Y-m-d H:i:s") %}
                         {% if postDate > now %}
-                            <a href="{{ path('post_detail', {"post": eventsPost.getId()}) }}">
-                                <li><i class="fi fi-rs-daily-calendar"></i> {{ eventsPost.date|date('d/m/Y') }}
-                                    : {{ eventsPost.title }}
-                                    ({{ eventsPost.place }})
-                            </a>
+                            <li>
+                                <a href="{{ path('post_detail', {"post": eventsPost.getId()}) }}"
+                                   data-bs-toggle="tooltip"
+                                   data-bs-placement="top"
+                                   title="Cliquez pour voir les détails">
+                                    <i class="fi fi-rs-daily-calendar"></i>
+                                    <span class="event-date">{{ eventsPost.date|date('d/m/Y') }}</span>
+                                    <span class="event-title">{{ eventsPost.title }}</span>
+                                    {% if eventsPost.place %}
+                                        <span class="event-place">({{ eventsPost.place }})</span>
+                                    {% endif %}
+                                </a>
                             </li>
                         {% endif %}
                     {% endfor %}
                 {% endif %}
+                {% if eventsPosts is not defined or eventsPosts|length == 0 %}
+                    <li class="no-events">
+                        <i class="fi fi-rs-calendar-xmark"></i>
+                        <span>Aucun événement prévu pour le moment</span>
+                    </li>
+                {% endif %}
             </ul>
         </div>
-        <div class="col-4 footer-part text-center">
-            <h4>Mes humeurs</h4>
-            <iframe style="border-radius:12px"
-                    src="https://open.spotify.com/embed/playlist/64vm3EzLk7NdCgCbELebBE?si=Dpv54ZgrRvma35xK4FcboA?utm_source=generator&theme=0"
-                    width="90%" height="100%"
-                    allowfullscreen=""
-                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                    loading="lazy">
 
-            </iframe>
+        <!-- Section Spotify -->
+        <div class="col-12 col-md-4 footer-part text-center">
+            <h4>Mes humeurs musicales</h4>
+            <div class="spotify-wrapper">
+                <iframe style="border-radius:15px"
+                        src="https://open.spotify.com/embed/playlist/64vm3EzLk7NdCgCbELebBE?si=Dpv54ZgrRvma35xK4FcboA?utm_source=generator&theme=0"
+                        width="100%"
+                        height="152"
+                        allowfullscreen=""
+                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                        loading="lazy">
+                </iframe>
+            </div>
         </div>
-        <div class="col-4 footer-part text-center">
-            <h4>Mes infos</h4>
-            <p><a href="https://www.instagram.com/helloludi_blog/">
-                    <img src="{{ asset('img/instagram_logo.png') }}" width="40"> Mon instagram
-                </a>
-            </p>
-            <p><a href="{{ path("app_contact") }}">
-                    Me contacter directement
-                </a>
-            </p>
+
+        <!-- Section Contact -->
+        <div class="col-12 col-md-4 footer-part text-center">
+            <h4>Restons connectés</h4>
+            <div class="social-links">
+                <p>
+                    <a href="https://www.instagram.com/helloludi_blog/"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="social-link instagram">
+                        <img src="{{ asset('img/instagram_logo.png') }}" width="30" alt="Instagram">
+                        <span>Mon Instagram</span>
+                    </a>
+                </p>
+                <p>
+                    <a href="{{ path("app_contact") }}" class="social-link contact">
+                        <span>Me contacter</span>
+                    </a>
+                </p>
+            </div>
         </div>
     </div>
-    </div>
+
+    <!-- Script pour les tooltips Bootstrap -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
+        });
+    </script>
 
 
     <script>

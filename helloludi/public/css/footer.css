@@ -1,0 +1,373 @@
+/* ===== FOOTER MODERNE ET STYLÉ ===== */
+.blog-footer {
+    height: auto;
+    min-height: 320px;
+    background: linear-gradient(135deg, #694141 0%, #0d0000 30%, #a0926f 70%, #6c5ce7 100%);
+    position: relative;
+    overflow: hidden;
+    margin-top: 50px;
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Texture géométrique en arrière-plan */
+.blog-footer::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        linear-gradient(30deg, rgba(255, 255, 255, 0.05) 25%, transparent 25%),
+        linear-gradient(-30deg, rgba(255, 255, 255, 0.05) 25%, transparent 25%),
+        linear-gradient(30deg, transparent 75%, rgba(255, 255, 255, 0.05) 75%),
+        linear-gradient(-30deg, transparent 75%, rgba(255, 255, 255, 0.05) 75%);
+    background-size: 30px 30px;
+    background-position: 0 0, 0 0, 15px 15px, 15px 15px;
+    animation: geometricShift 20s ease-in-out infinite;
+}
+
+@keyframes geometricShift {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(15px, 15px); }
+}
+
+/* Styles pour les 3 colonnes */
+.footer-part {
+    background: rgba(105, 65, 65, 0.7) !important;
+    backdrop-filter: blur(10px);
+    padding: 35px 25px;
+    border-right: 2px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+    transition: all 0.3s ease;
+    border-radius: 0;
+}
+
+.footer-part:last-child {
+    border-right: none;
+}
+
+.footer-part:hover {
+    background: rgba(105, 65, 65, 0.9) !important;
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* Titres des sections - style moderne et lisible */
+.footer-part h4 {
+    color: #ffffff;
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 25px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    position: relative;
+    padding-bottom: 15px;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+.footer-part h4::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 4px;
+    background: linear-gradient(90deg, #ff6b35, #d2691e);
+    border-radius: 2px;
+    box-shadow: 0 2px 8px rgba(255, 107, 53, 0.5);
+}
+
+/* Section Événements - style épuré */
+.footer-part:first-child ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-part:first-child ul li {
+    margin-bottom: 15px;
+    padding: 15px 20px;
+    position: relative;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    border-left: 4px solid #ff6b35;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.footer-part:first-child ul li:hover {
+    transform: translateX(8px);
+    background: rgba(255, 255, 255, 0.15);
+    border-left-color: #ff8c42;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.footer-part:first-child ul a {
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    display: block;
+    transition: all 0.3s ease;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.footer-part:first-child ul a:hover {
+    color: #ffffff;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+}
+
+.footer-part:first-child .event-date {
+    font-weight: 600;
+    color: #ff6b35;
+    text-shadow: 0 0 5px rgba(255, 107, 53, 0.5);
+}
+
+.footer-part:first-child .event-title {
+    display: block;
+    margin-top: 5px;
+    font-size: 0.9rem;
+    color: #f8f9fa;
+}
+
+.footer-part:first-child .event-place {
+    font-size: 0.85rem;
+    opacity: 0.8;
+    font-style: italic;
+    color: #ddd;
+}
+
+.footer-part:first-child .no-events {
+    text-align: center;
+    color: #bdc3c7;
+    font-style: italic;
+    padding: 25px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    font-weight: 500;
+}
+
+.footer-part:first-child .no-events i {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 10px;
+    opacity: 0.6;
+    color: #ff6b35;
+}
+
+/* Icônes avec style moderne */
+.footer-part:first-child ul li i {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #ff6b35;
+    font-size: 1.1rem;
+    background: rgba(255, 107, 53, 0.2);
+    padding: 8px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Section Spotify - design moderne */
+.footer-part:nth-child(2) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.spotify-wrapper {
+    background: rgba(105, 65, 65, 0.5);
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.spotify-wrapper:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5);
+    border-color: rgba(255, 140, 66, 0.5);
+}
+
+.footer-part:nth-child(2) iframe {
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    max-width: 280px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Section Contact/Social - style pro mais fun */
+.footer-part:last-child .social-links {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    align-items: center;
+}
+
+.footer-part:last-child p {
+    margin: 0;
+}
+
+.social-link {
+    color: #ffffff !important;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 28px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 30px;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    font-weight: 600;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    min-width: 180px;
+    justify-content: center;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.social-link:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.4);
+    color: #ffffff !important;
+}
+
+.social-link.instagram {
+    background: linear-gradient(45deg, #ff6b35, #ff8c42, #ffab40, #ffc947, #ff7043);
+}
+
+.social-link.instagram img {
+    filter: none;
+    transition: all 0.3s ease;
+}
+
+.social-link.instagram:hover img {
+    filter: none;
+    transform: scale(1.1);
+}
+
+.social-link.instagram:hover {
+    background: linear-gradient(45deg, #ff8c42, #ffab40, #ffc947, #ff7043, #ff5722);
+}
+
+.social-link.contact {
+    background: linear-gradient(45deg, #ff6b35, #ff8c42);
+}
+
+.social-link.contact:hover {
+    background: linear-gradient(45deg, #ff8c42, #ffab40);
+}
+
+.social-link img {
+    transition: all 0.3s ease;
+    filter: brightness(0) invert(1);
+}
+
+.social-link:hover img {
+    transform: scale(1.1);
+    filter: brightness(0) invert(1) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .blog-footer {
+        min-height: auto;
+    }
+
+    .footer-part {
+        border-right: none;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+        padding: 25px 20px;
+    }
+
+    .footer-part:last-child {
+        border-bottom: none;
+    }
+
+    .footer-part h4 {
+        font-size: 1.2rem;
+        letter-spacing: 1px;
+    }
+
+    .footer-part:nth-child(2) iframe {
+        max-width: 100%;
+        height: 200px;
+    }
+
+    .social-link {
+        min-width: auto;
+        padding: 14px 24px;
+    }
+}
+
+/* Animations d'apparition subtiles */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.footer-part {
+    animation: slideInUp 0.8s ease-out;
+}
+
+.footer-part:nth-child(1) { animation-delay: 0.1s; }
+.footer-part:nth-child(2) { animation-delay: 0.3s; }
+.footer-part:nth-child(3) { animation-delay: 0.5s; }
+
+/* Effet de lumière subtile */
+.blog-footer::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.1) 50%,
+        transparent 100%
+    );
+    animation: lightSweep 8s ease-in-out infinite;
+}
+
+@keyframes lightSweep {
+    0% { left: -100%; }
+    50% { left: 100%; }
+    100% { left: 100%; }
+}
+
+/* Émojis modernes et stylés */
+.footer-part:first-child h4::before {
+    content: '📅 ';
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+    font-size: 1.2em;
+}
+
+.footer-part:nth-child(2) h4::before {
+    content: '🎵 ';
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+    font-size: 1.2em;
+}
+
+.footer-part:last-child h4::before {
+    content: '💬 ';
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+    font-size: 1.2em;
+}
+
+/* Styles pour les différents thèmes */
+body[data-theme="white"] .blog-footer,
+body[data-theme="black"] .blog-footer {
+    background: linear-gradient(135deg, #694141 0%, #0d0000 30%, #a0926f 70%, #6c5ce7 100%);
+}

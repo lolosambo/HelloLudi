@@ -1,0 +1,512 @@
+/* ===========================
+   SECTION COMMENTAIRES MODERNE
+   =========================== */
+
+/* Container principal des commentaires */
+.comments-section {
+    background: linear-gradient(135deg, #f5f3f0 0%, #e8e5df 100%);
+    padding: 3rem;
+    border-radius: 25px;
+    margin-top: 3rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Decoration en arrière-plan */
+.comments-section::before {
+    content: '💬';
+    position: absolute;
+    font-size: 150px;
+    opacity: 0.05;
+    top: -50px;
+    right: -30px;
+    transform: rotate(-15deg);
+}
+
+/* En-tête de la section */
+.comments-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    position: relative;
+    animation: fadeInDown 0.8s ease;
+}
+
+.comments-header h4 {
+    font-size: 2.5rem;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.comments-header::after {
+    content: '';
+    width: 100px;
+    height: 5px;
+    background: linear-gradient(90deg, #3498db, #e74c3c, #f39c12);
+    display: block;
+    margin: 1.5rem auto;
+    border-radius: 3px;
+    animation: slideWidth 2s ease infinite;
+}
+
+/* Commentaire individuel */
+.comment {
+    background: white;
+    border-radius: 20px;
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+    margin-left: 0;
+    margin-right: 0;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    animation: slideInLeft 0.6s ease;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.comment:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.18);
+}
+
+/* En-tête du commentaire */
+.comment-header {
+    display: block;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #ecf0f1;
+    text-align: left;
+}
+
+/* Avatar supprimé - on se concentre sur le pseudo */
+.comment-avatar {
+    display: none !important;
+}
+
+/* Aussi supprimer les avatars de réponses */
+.reply-avatar {
+    display: none !important;
+}
+
+/* Méta-informations */
+.comment-meta {
+    width: 100%;
+}
+
+.comment-author {
+    font-weight: 800;
+    color: #2c3e50;
+    font-size: 1.4rem;
+    margin-bottom: 0.5rem;
+    display: block;
+    position: relative;
+    background: linear-gradient(135deg, #3498db, #e74c3c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-align: left;
+}
+
+.comment-author::after {
+    content: '✨';
+    margin-left: 0.7rem;
+    font-size: 1.2rem;
+    animation: sparkle 2s ease infinite;
+    -webkit-text-fill-color: initial;
+    background: none;
+}
+
+.comment-date {
+    color: #7f8c8d;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    text-align: left;
+    justify-content: flex-start;
+}
+
+/* Contenu du commentaire */
+.comment-content {
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
+    border-radius: 18px;
+    position: relative;
+    border: 2px solid #ecf0f1;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: #34495e;
+    margin-top: 1rem;
+    text-align: left;
+}
+
+/* Suppression de la bulle de dialogue car plus d'avatar */
+.comment-content::before,
+.comment-content::after {
+    display: none;
+}
+
+/* Boutons d'action */
+.btn-reply {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.5rem;
+    border-radius: 25px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+}
+
+.btn-reply:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+    background: linear-gradient(135deg, #2980b9, #3498db);
+}
+
+/* Réponses aux commentaires */
+.comment-replies {
+    margin-top: 1.5rem;
+    margin-left: 40px;
+    padding-left: 20px;
+    border-left: 3px solid #ecf0f1;
+}
+
+.reply {
+    background: linear-gradient(135deg, #fff9e6 0%, #fff3cc 100%);
+    border-radius: 12px;
+    padding: 1.2rem;
+    margin-bottom: 1rem;
+    position: relative;
+    border-left: 3px solid #f39c12;
+    box-shadow: 0 2px 8px rgba(243, 156, 18, 0.1);
+    animation: fadeIn 0.5s ease;
+    font-size: 0.9rem;
+    width: calc(100% - 20px);
+    max-width: 90%;
+    text-align: left;
+}
+
+.reply-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.8rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(243, 156, 18, 0.2);
+}
+
+.reply-header .comment-author {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.2rem;
+}
+
+.reply-header .comment-date {
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+/* Contenu des réponses aligné à gauche */
+.reply .mt-2,
+.reply > div:last-child {
+    text-align: left;
+    margin-top: 0.8rem;
+}
+
+.reply-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f39c12, #f1c40f);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 1rem;
+    box-shadow: 0 3px 10px rgba(243, 156, 18, 0.3);
+}
+
+/* Commentaires vides */
+.empty-comments {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #7f8c8d;
+}
+
+.empty-comments i {
+    font-size: 4rem;
+    color: #bdc3c7;
+    margin-bottom: 1rem;
+    animation: bounce 2s ease infinite;
+}
+
+.empty-comments h5 {
+    color: #34495e;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.empty-comments p {
+    font-size: 1.1rem;
+    color: #95a5a6;
+}
+
+/* Bouton flottant pour ajouter un commentaire */
+.btn-add-comment {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    font-size: 1.5rem;
+    box-shadow: 0 5px 20px rgba(231, 76, 60, 0.4);
+    transition: all 0.3s ease;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-add-comment:hover {
+    transform: scale(1.1) rotate(90deg);
+    box-shadow: 0 8px 30px rgba(231, 76, 60, 0.5);
+}
+
+/* Modal personnalisé */
+.modal-content {
+    border-radius: 20px;
+    overflow: hidden;
+    border: none;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    border: none;
+    padding: 1.5rem;
+}
+
+.modal-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+}
+
+.modal-body {
+    padding: 2rem;
+    background: #f8f9fa;
+}
+
+.form-group-modal {
+    margin-bottom: 1.5rem;
+}
+
+.form-group-modal label {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.form-group-modal .form-control {
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-group-modal .form-control:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+}
+
+/* Boutons modernes */
+.btn-modern {
+    padding: 0.75rem 2rem;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-modern.btn-success {
+    background: linear-gradient(135deg, #27ae60, #229954);
+    color: white;
+    box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+}
+
+.btn-modern.btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+@keyframes sparkle {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(1.2);
+    }
+}
+
+@keyframes slideWidth {
+    0%, 100% {
+        width: 100px;
+    }
+    50% {
+        width: 150px;
+    }
+}
+
+/* Effet de chargement pour les nouveaux commentaires */
+.comment.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.comment.loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* Badges et tags */
+.comment-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-left: 0.5rem;
+}
+
+.comment-badge.new {
+    background: linear-gradient(135deg, #27ae60, #229954);
+    animation: pulse 2s ease infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 0.8;
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .comments-section {
+        padding: 1.5rem;
+    }
+
+    .comment {
+        padding: 1.5rem;
+    }
+
+    .comment-content {
+        margin-left: 0;
+        margin-top: 1rem;
+    }
+
+    .btn-add-comment {
+        bottom: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+    }
+
+    .comment-replies {
+        margin-left: 0;
+    }
+
+    .comment-author {
+        font-size: 1.2rem;
+    }
+}

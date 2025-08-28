@@ -4,12 +4,14 @@ namespace App\Controller;
 
 use App\Entity\Comment;
 use App\Entity\Post;
+use App\Entity\PostImage;
 use App\Entity\Rating;
 use App\Entity\User;
 use App\Form\CommentType;
 use App\Form\RatingType;
 use App\Repository\PostRepository;
 use App\Form\PostType;
+use App\Service\ImageUploadService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -29,7 +31,7 @@ class PostController extends AbstractController
     #[Route('/', name: 'homepage')]
     public function indexAction(Request $request, PostRepository $postRepository)
     {
-        $posts = $postRepository->find4LastPosts();
+        $posts = $postRepository->find8LastPosts();
         $eventsPosts = $postRepository->findByCategory("event");
         return $this->render('home.html.twig', [
             'posts' => $posts,
@@ -93,7 +95,7 @@ class PostController extends AbstractController
     }
 
     #[Route('/post/create', name: 'post_create')]
-    public function create(Request $request, EntityManagerInterface $em)
+    public function create(Request $request, EntityManagerInterface $em, ImageUploadService $imageUploadService)
     {
         $post = new Post();
         $form = $this->createForm(PostType::class, $post);
@@ -101,6 +103,20 @@ class PostController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Vérification de la taille du contenu
+            $contentLength = strlen($form->get('content')->getData() ?? '');
+            if ($contentLength > 8000000) { // ~8MB limite
+                $this->addFlash('error', 'Le contenu de votre article est trop volumineux. Veuillez le réduire.');
+                $eventsPosts = $em->getRepository(Post::class)->findByCategory("event");
+                return $this->render('post/create.html.twig', [
+                    'form' => $form->createView(),
+                    'eventsPosts' => $eventsPosts
+                ]);
+            }
+            
+            $post->setContent($form->get('content')->getData());
+            
+            // Gestion des champs spécifiques selon la catégorie
             if ($form->get('category')->getData() === "event") {
                 $post->setDate($form->get('date')->getData());
                 $post->setPlace($form->get('place')->getData());
@@ -113,10 +129,12 @@ class PostController extends AbstractController
                 $post->setPersonsNumber(null);
                 $post->setCookingTime(null);
             }
+            
             $post->setUser($this->getUser());
             $post->setCreationDate(new \DateTime());
             $post->setCategory($form->get('category')->getData());
 
+            // Gestion de l'image à la une
             /** @var UploadedFile $file */
             $file = $form->get('image')->getData();
 
@@ -130,17 +148,32 @@ class PostController extends AbstractController
                 $post->setImage("img/posts/" . $newFilename);
             }
 
+            // Persist du post d'abord pour avoir un ID
             $em->persist($post);
             $em->flush();
+
+            // Gestion des images de galerie pour la catégorie "photo"
+            if ($form->get('category')->getData() === "photo") {
+                $galleryImages = $form->get('galleryImages')->getData();
+                
+                if ($galleryImages) {
+                    $uploadedCount = $imageUploadService->uploadMultipleImages($galleryImages, $post);
+                    
+                    if ($uploadedCount > 0) {
+                        $this->addFlash('success', sprintf('%d image(s) uploadée(s) avec succès dans la galerie.', $uploadedCount));
+                        $em->flush(); // Sauvegarder les images de galerie
+                    }
+                }
+            }
 
             $this->addFlash('success', 'Article créé avec succès');
             return $this->redirectToRoute('post_detail', ["post" => $post->getId()]);
         }
+        
         $eventsPosts = $em->getRepository(Post::class)->findByCategory("event");
         return $this->render('post/create.html.twig', [
             'form' => $form->createView(),
             'eventsPosts' => $eventsPosts
-
         ]);
     }
 
@@ -215,15 +248,28 @@ class PostController extends AbstractController
         ]);
     }
 
-
     #[Route('/post/{post}/edit', name: 'post_edit')]
-    public function edit(Request $request, Post $post, EntityManagerInterface $em)
+    public function edit(Request $request, Post $post, EntityManagerInterface $em, ImageUploadService $imageUploadService)
     {
         $form = $this->createForm(PostType::class, $post);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Vérification de la taille du contenu
+            $contentLength = strlen($form->get('content')->getData() ?? '');
+            if ($contentLength > 8000000) { // ~8MB limite
+                $this->addFlash('error', 'Le contenu de votre article est trop volumineux. Veuillez le réduire.');
+                $eventsPosts = $em->getRepository(Post::class)->findByCategory("event");
+                return $this->render('post/edit.html.twig', [
+                    'form' => $form->createView(),
+                    'post' => $post,
+                    'eventsPosts' => $eventsPosts
+                ]);
+            }
+            
             $post->setUpdateDate(new \DateTime());
+            
+            // Gestion de l'image à la une
             /** @var UploadedFile $file */
             $file = $form->get('image')->getData();
 
@@ -236,9 +282,23 @@ class PostController extends AbstractController
 
                 $post->setImage("img/posts/" . $newFilename);
             }
+
+            // Gestion des images de galerie pour la catégorie "photo"
+            if ($form->get('category')->getData() === "photo") {
+                $galleryImages = $form->get('galleryImages')->getData();
+                
+                if ($galleryImages) {
+                    $uploadedCount = $imageUploadService->uploadMultipleImages($galleryImages, $post);
+                    
+                    if ($uploadedCount > 0) {
+                        $this->addFlash('success', sprintf('%d nouvelle(s) image(s) ajoutée(s) à la galerie.', $uploadedCount));
+                    }
+                }
+            }
+
             $em->flush();
             $this->addFlash('success', 'Article modifié avec succès');
-            return $this->redirectToRoute('post_edit', ['post' => $post->getid()]);
+            return $this->redirectToRoute('post_edit', ['post' => $post->getId()]);
         }
 
         $eventsPosts = $em->getRepository(Post::class)->findByCategory("event");
@@ -249,15 +309,36 @@ class PostController extends AbstractController
         ]);
     }
 
-
     #[Route('/post/{post}/delete', name: 'post_delete')]
-    public function delete(Post $post, EntityManagerInterface $em)
+    public function delete(Post $post, EntityManagerInterface $em, ImageUploadService $imageUploadService)
     {
+        // Supprimer les fichiers images de galerie du système de fichiers
+        $imageUploadService->deleteAllPostImages($post);
+        
         $em->remove($post);
         $em->flush();
 
         $this->addFlash('success', 'Article supprimé avec succès.');
         return $this->redirectToRoute('homepage');
+    }
+
+    #[Route('/post/{post}/gallery-image/{imageId}/delete', name: 'post_gallery_image_delete', methods: ['POST'])]
+    public function deleteGalleryImage(Post $post, int $imageId, EntityManagerInterface $em, ImageUploadService $imageUploadService): JsonResponse
+    {
+        $postImage = $em->getRepository(PostImage::class)->find($imageId);
+        
+        if (!$postImage || $postImage->getPost() !== $post) {
+            return new JsonResponse(['success' => false, 'message' => 'Image non trouvée.'], 404);
+        }
+
+        // Supprimer le fichier du système de fichiers
+        $imageUploadService->deleteImageFile($postImage->getFilename());
+        
+        // Supprimer de la base de données
+        $em->remove($postImage);
+        $em->flush();
+
+        return new JsonResponse(['success' => true, 'message' => 'Image supprimée avec succès.']);
     }
 
     #[Route('/post/{post}/publish', name: 'post_publish')]
@@ -270,25 +351,95 @@ class PostController extends AbstractController
         return $this->redirectToRoute('homepage');
     }
 
-
     #[Route('/upload_image', name: 'upload_image', methods: ["POST"])]
-    public function uploadImage(Request $request)
+    public function uploadImage(Request $request): JsonResponse
     {
-        $file = $request->files->get('file');
-
-        if ($file instanceof UploadedFile) {
-            $filename = uniqid() . '.' . $file->guessExtension();
-            $directory = $this->getParameter('kernel.project_dir') . '/public/img/froala/';
-
-            try {
-                $file->move($directory, $filename);
-                return new JsonResponse(['link' => '/img/froala/' . $filename]);
-            } catch (FileException $e) {
-                return new JsonResponse(['error' => 'Erreur lors de l\'upload de l\'image.']);
+        try {
+            // Vérifier la taille totale de la requête
+            $contentLength = $request->headers->get('Content-Length');
+            if ($contentLength && $contentLength > 20 * 1024 * 1024) { // 20MB limite
+                return new JsonResponse([
+                    'error' => 'La requête est trop volumineuse (max 20MB)'
+                ], 413);
             }
-        }
+            
+            // Log pour déboguer
+            error_log('Upload request received');
 
-        return new JsonResponse(['error' => 'Aucun fichier envoyé.']);
+            $file = $request->files->get('file');
+
+            if (!$file) {
+                return new JsonResponse([
+                    'error' => 'Aucun fichier reçu'
+                ], 400);
+            }
+
+            if (!$file instanceof UploadedFile) {
+                return new JsonResponse([
+                    'error' => 'Fichier invalide'
+                ], 400);
+            }
+
+            // Vérifier le type MIME
+            $allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            if (!in_array($file->getMimeType(), $allowedMimeTypes)) {
+                return new JsonResponse([
+                    'error' => 'Type de fichier non autorisé. Formats acceptés : JPG, PNG, GIF, WebP'
+                ], 400);
+            }
+
+            // Vérifier la taille (10MB max pour l'upload d'images)
+            if ($file->getSize() > 10 * 1024 * 1024) {
+                return new JsonResponse([
+                    'error' => 'Le fichier est trop volumineux (max 10MB)'
+                ], 400);
+            }
+
+            // Générer un nom unique
+            $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $safeFilename = transliterator_transliterate('Any-Latin; Latin-ASCII; [^A-Za-z0-9_] remove; Lower()', $originalFilename);
+            $newFilename = $safeFilename . '-' . uniqid() . '.' . $file->guessExtension();
+
+            // Déplacer le fichier
+            try {
+                $destination = $this->getParameter('kernel.project_dir') . '/public/img/posts';
+
+                // Créer le dossier s'il n'existe pas
+                if (!is_dir($destination)) {
+                    mkdir($destination, 0777, true);
+                }
+
+                $file->move($destination, $newFilename);
+
+                // Retourner l'URL
+                $url = '/img/posts/' . $newFilename;
+
+                return new JsonResponse([
+                    'link' => $url
+                ]);
+
+            } catch (FileException $e) {
+                error_log('File upload error: ' . $e->getMessage());
+                return new JsonResponse([
+                    'error' => 'Erreur lors de l\'enregistrement du fichier'
+                ], 500);
+            }
+
+        } catch (\Exception $e) {
+            error_log('Upload exception: ' . $e->getMessage());
+            
+            // Gestion spécifique des erreurs de taille
+            if (strpos($e->getMessage(), 'Content-Length') !== false || 
+                strpos($e->getMessage(), 'post_max_size') !== false) {
+                return new JsonResponse([
+                    'error' => 'Le fichier ou le contenu est trop volumineux. Veuillez réduire la taille.'
+                ], 413);
+            }
+            
+            return new JsonResponse([
+                'error' => 'Erreur serveur: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     #[Route('/post/{post}/user/{user}/like', name: 'post_like')]
@@ -334,7 +485,7 @@ class PostController extends AbstractController
 
             $this->addFlash('success', 'Commentaire ajouté avec succès.');
         } else {
-            $this->addFlash('error', 'Erreur lors de l’ajout du commentaire.');
+            $this->addFlash('error', 'Erreur lors de l\'ajout du commentaire.');
         }
 
         return $this->redirectToRoute('post_detail', [
@@ -428,7 +579,21 @@ class PostController extends AbstractController
                 $votedPosts[] = $post->getId();
 
                 $response = new JsonResponse(['status' => "success", 'message' => 'Note enregistrée avec succès !']);
-                $response->headers->setCookie(new Cookie('voted_posts', json_encode($votedPosts), strtotime('+1 year')));
+                
+                // Créer le cookie avec les bonnes options
+                $cookie = Cookie::create(
+                    'voted_posts',
+                    json_encode($votedPosts),
+                    time() + (365 * 24 * 60 * 60), // 1 an
+                    '/', // path
+                    null, // domain
+                    null, // secure (laissé null pour utiliser cookie_secure: auto)
+                    true, // httpOnly
+                    false, // raw
+                    null // sameSite (laissé null pour la valeur par défaut)
+                );
+                
+                $response->headers->setCookie($cookie);
                 return $response;
             }
         }
@@ -436,4 +601,3 @@ class PostController extends AbstractController
         return new JsonResponse(['status' => "failed", 'message' => 'Données invalides.'], 400);
     }
 }
-
