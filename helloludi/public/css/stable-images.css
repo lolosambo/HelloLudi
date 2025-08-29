@@ -1,0 +1,273 @@
+/* 
+ * CSS pour le système d'images stable - Version 2.0
+ * Les images ne bougent JAMAIS de leur position
+ */
+
+/* === CONTENEURS STABLES === */
+
+.stable-image-container {
+    position: relative !important;
+    display: inline-block !important;
+    line-height: 0 !important;
+    /* JAMAIS de changement de position */
+    transform: none !important;
+    transition: none !important;
+}
+
+/* Overlay de sélection invisible par défaut */
+.image-selection-overlay {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    border: 3px solid transparent !important;
+    pointer-events: none !important;
+    z-index: 100 !important;
+    border-radius: 4px !important;
+    transition: border-color 0.2s ease !important;
+}
+
+/* === IMAGES STABLES === */
+
+.stable-image {
+    /* Base stable - ne bouge jamais */
+    position: static !important;
+    cursor: pointer !important;
+    transition: none !important;
+    max-width: 100% !important;
+    height: auto !important;
+}
+
+/* Alignement gauche - STABLE */
+.stable-image.align-left {
+    float: left !important;
+    margin: 5px 15px 15px 5px !important;
+    clear: left !important;
+    max-width: 50% !important;
+    display: block !important;
+}
+
+/* Alignement droite - STABLE */
+.stable-image.align-right {
+    float: right !important;
+    margin: 5px 5px 15px 15px !important;
+    clear: right !important;
+    max-width: 50% !important;
+    display: block !important;
+}
+
+/* Alignement centre - STABLE */
+.stable-image.align-center {
+    display: block !important;
+    margin: 15px auto !important;
+    float: none !important;
+    max-width: 100% !important;
+}
+
+/* Alignement par défaut - STABLE */
+.stable-image:not(.align-left):not(.align-right):not(.align-center) {
+    display: inline-block !important;
+    margin: 10px 5px !important;
+    float: none !important;
+}
+
+/* === POIGNÉE DE REDIMENSIONNEMENT NOUVELLE === */
+
+.resize-handle-new {
+    position: absolute !important;
+    bottom: -8px !important;
+    right: -8px !important;
+    width: 16px !important;
+    height: 16px !important;
+    background: #007bff !important;
+    color: white !important;
+    border: 2px solid white !important;
+    border-radius: 50% !important;
+    cursor: se-resize !important;
+    font-size: 10px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-weight: bold !important;
+    z-index: 1001 !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3) !important;
+    user-select: none !important;
+    transition: all 0.2s ease !important;
+}
+
+.resize-handle-new:hover {
+    background: #0056b3 !important;
+    transform: scale(1.1) !important;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.4) !important;
+}
+
+/* === ÉTATS DE SÉLECTION === */
+
+.stable-image.selected {
+    /* L'image elle-même ne change pas visuellement */
+    /* La sélection est gérée par l'overlay */
+}
+
+/* === COMPATIBILITÉ AVEC L'ANCIEN SYSTÈME === */
+
+/* Les anciennes classes restent fonctionnelles */
+.editor-content img.align-left,
+.post-content img.align-left,
+.article-content img.align-left {
+    float: left !important;
+    margin: 5px 15px 15px 5px !important;
+    clear: left !important;
+    max-width: 50% !important;
+    height: auto !important;
+    display: block !important;
+}
+
+.editor-content img.align-right,
+.post-content img.align-right,
+.article-content img.align-right {
+    float: right !important;
+    margin: 5px 5px 15px 15px !important;
+    clear: right !important;
+    max-width: 50% !important;
+    height: auto !important;
+    display: block !important;
+}
+
+.editor-content img.align-center,
+.post-content img.align-center,
+.article-content img.align-center {
+    display: block !important;
+    margin: 15px auto !important;
+    float: none !important;
+    max-width: 100% !important;
+    height: auto !important;
+}
+
+/* === STABILISATION PENDANT LE REDIMENSIONNEMENT === */
+
+.stable-image-container.resizing {
+    /* Même pendant le redimensionnement, pas de changement de position */
+    position: relative !important;
+    display: inline-block !important;
+}
+
+.stable-image-container.resizing .stable-image {
+    /* L'image reste parfaitement en place */
+    position: static !important;
+    transform: none !important;
+}
+
+/* === CLEARFIX === */
+
+.editor-content::after,
+.post-content::after,
+.article-content::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+/* === RESPONSIVE === */
+
+@media (max-width: 768px) {
+    /* Sur mobile, forcer toutes les images au centre pour éviter les problèmes */
+    .stable-image.align-left,
+    .stable-image.align-right,
+    .editor-content img.align-left,
+    .editor-content img.align-right,
+    .post-content img.align-left,
+    .post-content img.align-right {
+        float: none !important;
+        display: block !important;
+        margin: 15px auto !important;
+        max-width: 100% !important;
+        clear: both !important;
+    }
+}
+
+/* === DEBUG MODE === */
+
+.debug-stable-images .stable-image {
+    outline: 2px dashed #ff6b6b !important;
+    outline-offset: 2px !important;
+}
+
+.debug-stable-images .stable-image.align-left::before {
+    content: "← GAUCHE STABLE";
+    position: absolute;
+    background: #007bff;
+    color: white;
+    padding: 2px 6px;
+    font-size: 10px;
+    top: -20px;
+    left: 0;
+    border-radius: 3px;
+    z-index: 1000;
+}
+
+.debug-stable-images .stable-image.align-right::before {
+    content: "DROITE STABLE →";
+    position: absolute;
+    background: #28a745;
+    color: white;
+    padding: 2px 6px;
+    font-size: 10px;
+    top: -20px;
+    right: 0;
+    border-radius: 3px;
+    z-index: 1000;
+}
+
+.debug-stable-images .stable-image.align-center::before {
+    content: "↔ CENTRE STABLE";
+    position: absolute;
+    background: #ffc107;
+    color: black;
+    padding: 2px 6px;
+    font-size: 10px;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 3px;
+    z-index: 1000;
+}
+
+/* === PRÉVENTION DES CONFLITS === */
+
+/* Empêcher tout autre système de changer la position des images stables */
+.stable-image-container * {
+    position: static !important;
+}
+
+.stable-image-container .stable-image {
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+}
+
+/* Empêcher les transitions qui pourraient causer des bugs */
+.stable-image-container,
+.stable-image {
+    transition: none !important;
+    animation: none !important;
+}
+
+/* === AMÉLIORATION VISUELLE === */
+
+.stable-image:hover {
+    opacity: 0.9;
+    transition: opacity 0.2s ease;
+}
+
+.stable-image.selected {
+    opacity: 1 !important;
+}
+
+/* Curseur pendant le redimensionnement */
+body.resizing-stable-image {
+    cursor: se-resize !important;
+    user-select: none !important;
+}

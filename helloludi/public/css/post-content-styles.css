@@ -1,0 +1,428 @@
+/*
+ * POST CONTENT STYLES - Compatible avec système d'images V3
+ * Styles pour l'affichage des articles en lecture seule
+ */
+
+/* === CONTENEUR PRINCIPAL === */
+.post-content {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: #333;
+    max-width: 100%;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* === CLEARFIX ESSENTIEL === */
+.post-content::after {
+    content: "" !important;
+    display: table !important;
+    clear: both !important;
+}
+
+/* === IMAGES DANS LE CONTENU === */
+
+/* Base pour toutes les images */
+.post-content img {
+    max-width: 100% !important;
+    height: auto !important;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    margin: 10px 5px; /* Marge par défaut */
+    display: inline-block;
+}
+
+/* CORRECTION: Images avec taille personnalisée */
+.post-content img[data-custom-width] {
+    /* Respecter la largeur personnalisée de l'éditeur */
+    width: attr(data-custom-width) !important;
+    max-width: none !important; /* Permettre de dépasser les limites normales */
+}
+
+/* Fallback pour les navigateurs qui ne supportent pas attr() */
+.post-content img[style*="width"] {
+    /* Si l'image a un style inline width, le respecter */
+    max-width: none !important;
+}
+
+.post-content img:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* === ALIGNEMENTS D'IMAGES === */
+
+/* Image alignée à gauche - Le texte s'enroule à droite */
+.post-content img.align-left {
+    float: left !important;
+    clear: left !important;
+    margin: 0 20px 15px 0 !important; /* Marge généreuse à droite */
+    max-width: 45% !important; /* Laisse 55% pour le texte */
+    display: block !important;
+}
+
+/* MAIS si redimensionnée manuellement, respecter la taille */
+.post-content img.align-left[data-custom-width],
+.post-content img.align-left[style*="width"] {
+    max-width: 60% !important; /* Limite plus généreuse pour images personnalisées */
+}
+
+/* Image alignée à droite - Le texte s'enroule à gauche */
+.post-content img.align-right {
+    float: right !important;
+    clear: right !important;
+    margin: 0 0 15px 20px !important; /* Marge généreuse à gauche */
+    max-width: 45% !important; /* Laisse 55% pour le texte */
+    display: block !important;
+}
+
+/* MAIS si redimensionnée manuellement, respecter la taille */
+.post-content img.align-right[data-custom-width],
+.post-content img.align-right[style*="width"] {
+    max-width: 60% !important; /* Limite plus généreuse pour images personnalisées */
+}
+
+/* Image centrée - Pas d'enroulement de texte */
+.post-content img.align-center {
+    display: block !important;
+    float: none !important;
+    clear: both !important;
+    margin: 20px auto !important; /* Centre horizontalement */
+    max-width: 90% !important; /* Presque pleine largeur */
+    text-align: center !important;
+}
+
+/* === ANCIENS SYSTÈMES DE COMPATIBILITÉ === */
+
+/* Classes wrap-* pour compatibilité ascendante */
+.post-content img.wrap-left {
+    float: left !important;
+    clear: left !important;
+    margin: 5px 20px 15px 5px !important;
+    max-width: 40% !important;
+    display: block !important;
+}
+
+.post-content img.wrap-right {
+    float: right !important;
+    clear: right !important;
+    margin: 5px 5px 15px 20px !important;
+    max-width: 40% !important;
+    display: block !important;
+}
+
+/* === CONTENEURS D'IMAGES (pour la sélection dans l'éditeur) === */
+
+/* Nettoyer les wrappers de sélection si ils restent */
+.post-content .image-selection-wrapper {
+    position: static !important;
+    display: inline-block !important;
+    line-height: inherit !important;
+    
+    /* Hériter l'alignement */
+    float: inherit !important;
+    clear: inherit !important;
+    margin: inherit !important;
+    max-width: inherit !important;
+}
+
+.post-content .image-selection-wrapper img {
+    /* L'image dans le wrapper remplit le wrapper */
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    float: none !important;
+    clear: none !important;
+    display: block !important;
+}
+
+/* Supprimer les éléments de sélection en mode lecture */
+.post-content .image-selection-border,
+.post-content .image-resize-handle {
+    display: none !important;
+}
+
+/* === PARAGRAPHES AUTOUR DES IMAGES === */
+
+/* Améliorer l'espacement des paragraphes */
+.post-content p {
+    margin: 1.2em 0;
+    text-align: justify;
+    hyphens: auto;
+}
+
+/* Paragraphe après une image flottante */
+.post-content img.align-left + p,
+.post-content img.align-right + p,
+.post-content img.wrap-left + p,
+.post-content img.wrap-right + p {
+    margin-top: 0.5em;
+    text-indent: 0; /* Pas d'indentation après une image */
+}
+
+/* === TITRES === */
+.post-content h1, 
+.post-content h2, 
+.post-content h3, 
+.post-content h4, 
+.post-content h5, 
+.post-content h6 {
+    margin: 1.8em 0 0.8em 0;
+    font-weight: 600;
+    color: #2c3e50;
+    clear: both; /* Évite que les titres soient à côté des images flottantes */
+}
+
+.post-content h1 { font-size: 2.2em; color: #34495e; }
+.post-content h2 { font-size: 1.8em; color: #34495e; }
+.post-content h3 { font-size: 1.5em; color: #5d6d7e; }
+.post-content h4 { font-size: 1.3em; color: #5d6d7e; }
+.post-content h5 { font-size: 1.1em; color: #6c7b7f; }
+.post-content h6 { font-size: 1em; color: #6c7b7f; }
+
+/* === LISTES === */
+.post-content ul, 
+.post-content ol {
+    margin: 1.2em 0;
+    padding-left: 2em;
+}
+
+.post-content li {
+    margin: 0.5em 0;
+    line-height: 1.6;
+}
+
+/* === LIENS === */
+.post-content a {
+    color: #3498db;
+    text-decoration: underline;
+    transition: color 0.2s ease;
+}
+
+.post-content a:hover {
+    color: #2980b9;
+    text-decoration: none;
+}
+
+/* === CITATIONS === */
+.post-content blockquote {
+    margin: 1.5em 0;
+    padding: 1em 1.5em;
+    border-left: 4px solid #3498db;
+    background: #f8f9fa;
+    font-style: italic;
+    color: #555;
+    clear: both; /* Évite les conflits avec les images */
+}
+
+/* === CODE === */
+.post-content pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 1em;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.9em;
+    overflow-x: auto;
+    margin: 1.5em 0;
+    clear: both; /* Évite les conflits avec les images */
+}
+
+.post-content code {
+    background: #f8f8f8;
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.9em;
+    color: #d63384;
+}
+
+/* === TABLEAUX === */
+.post-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5em 0;
+    font-size: 0.95em;
+    clear: both; /* Évite les conflits avec les images */
+}
+
+.post-content th,
+.post-content td {
+    border: 1px solid #ddd;
+    padding: 0.8em;
+    text-align: left;
+    vertical-align: top;
+}
+
+.post-content th {
+    background: #f8f9fa;
+    font-weight: 600;
+    color: #495057;
+}
+
+.post-content tbody tr:nth-child(even) {
+    background: #f8f9fa;
+}
+
+/* === SÉPARATEURS === */
+.post-content hr {
+    border: 0;
+    height: 2px;
+    background: linear-gradient(to right, transparent, #bdc3c7, transparent);
+    margin: 2.5em 0;
+    clear: both;
+}
+
+/* === RESPONSIVE === */
+
+@media (max-width: 768px) {
+    .post-content {
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+    
+    /* Sur mobile, les images flottantes deviennent centrées */
+    .post-content img.align-left,
+    .post-content img.align-right,
+    .post-content img.wrap-left,
+    .post-content img.wrap-right {
+        float: none !important;
+        display: block !important;
+        margin: 15px auto !important;
+        max-width: 95% !important;
+        clear: both !important;
+    }
+    
+    /* Wrappers également */
+    .post-content .image-selection-wrapper.align-left,
+    .post-content .image-selection-wrapper.align-right {
+        float: none !important;
+        display: block !important;
+        margin: 15px auto !important;
+        max-width: 95% !important;
+        text-align: center !important;
+    }
+    
+    .post-content h1 { font-size: 1.8em; }
+    .post-content h2 { font-size: 1.5em; }
+    .post-content h3 { font-size: 1.3em; }
+    
+    .post-content blockquote {
+        padding: 0.8em 1em;
+        margin: 1em 0;
+    }
+    
+    .post-content pre {
+        padding: 0.8em;
+        font-size: 0.8em;
+    }
+}
+
+@media (max-width: 480px) {
+    .post-content {
+        font-size: 0.95rem;
+    }
+    
+    .post-content img {
+        max-width: 100% !important;
+        margin: 10px 0 !important;
+    }
+    
+    .post-content h1 { font-size: 1.6em; }
+    .post-content h2 { font-size: 1.4em; }
+}
+
+/* === ANIMATIONS ET EFFETS === */
+
+/* Animation d'apparition progressive */
+.post-content {
+    animation: fadeInContent 0.6s ease-out;
+}
+
+@keyframes fadeInContent {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Effet de focus pour l'accessibilité */
+.post-content img:focus {
+    outline: 3px solid #3498db;
+    outline-offset: 2px;
+}
+
+/* === PRINT STYLES === */
+@media print {
+    .post-content {
+        font-size: 12pt;
+        line-height: 1.5;
+    }
+    
+    .post-content img {
+        max-width: 100% !important;
+        float: none !important;
+        display: block !important;
+        margin: 1em auto !important;
+        page-break-inside: avoid;
+    }
+    
+    .post-content h1,
+    .post-content h2,
+    .post-content h3 {
+        page-break-after: avoid;
+    }
+    
+    .post-content blockquote,
+    .post-content pre {
+        page-break-inside: avoid;
+        border: 1px solid #ccc;
+    }
+}
+
+/* === DEBUG (à désactiver en production) === */
+.debug-post-content .post-content img {
+    outline: 2px dashed blue !important;
+    outline-offset: 3px !important;
+}
+
+.debug-post-content .post-content img.align-left::before {
+    content: "GAUCHE" !important;
+    position: absolute !important;
+    background: red !important;
+    color: white !important;
+    padding: 2px 6px !important;
+    font-size: 10px !important;
+    z-index: 100 !important;
+}
+
+.debug-post-content .post-content img.align-right::before {
+    content: "DROITE" !important;
+    position: absolute !important;
+    background: blue !important;
+    color: white !important;
+    padding: 2px 6px !important;
+    font-size: 10px !important;
+    z-index: 100 !important;
+}
+
+/* === OPTIMISATIONS PERFORMANCE === */
+
+/* GPU acceleration pour les animations */
+.post-content img {
+    backface-visibility: hidden;
+    transform: translateZ(0);
+}
+
+/* Optimisation du rendu des fonts */
+.post-content {
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}

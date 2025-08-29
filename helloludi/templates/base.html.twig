@@ -16,21 +16,21 @@
         <link rel='stylesheet'
               href='https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-straight/css/uicons-regular-straight.css'>
 
-        <link rel="stylesheet" href="/css/bootstrap.min.css">
-        <link rel="stylesheet" href="/css/footer.css">
+        <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
         {% if app.user and app.user.theme == "brown" %}
-            <link rel="stylesheet" href="/css/style.css">
+            <link rel="stylesheet" href="{{ asset('css/style.css') }}">
         {% elseif app.user and app.user.theme == "white" %}
-            <link rel="stylesheet" href="/css/style_white.css">
+            <link rel="stylesheet" href="{{ asset('css/style_white.css') }}">
         {% elseif app.user and app.user.theme == "black" %}
-            <link rel="stylesheet" href="/css/style_black.css">
+            <link rel="stylesheet" href="{{ asset('css/style_black.css') }}">
         {% else %}
-            <link rel="stylesheet" href="/css/style.css">
+            <link rel="stylesheet" href="{{ asset('css/style.css') }}">
         {% endif %}
     {% endblock %}
 
     {% block javascripts %}
-        <script src="/js/bootstrap.bundle.min.js"></script>
+        <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
     {% endblock %}
 </head>
 <body>

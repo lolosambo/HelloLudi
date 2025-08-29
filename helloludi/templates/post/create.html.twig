@@ -5,7 +5,10 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="{{ asset('css/form-styles.css') }}" rel="stylesheet">
     <link href="{{ asset('css/rich-editor.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/stable-images.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/image-fix-v3.css') }}" rel="stylesheet">
     <link href="{{ asset('css/gallery-styles.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/post-content-styles.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -171,7 +174,7 @@
     {# Modales pour l'éditeur #}
     {% include 'components/_simple_editor_modals.html.twig' %}
 
-    <script src="{{ asset('js/SimpleRichEditor.js') }}"></script>
+    <script src="{{ asset('js/SimpleRichEditor-v3-fixed.js') }}"></script>
     <script src="{{ asset('js/form-handler.js') }}"></script>
     <script src="{{ asset('js/gallery-init.js') }}"></script>
     <script src="{{ asset('js/gallery-simple.js') }}"></script>
