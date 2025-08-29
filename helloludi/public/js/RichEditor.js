@@ -132,6 +132,19 @@
                     <button type="button" class="editor-btn" data-command="justifyRight" title="Aligner à droite">
                         <i class="bi bi-text-right"></i>
                     </button>
+                    <button type="button" class="editor-btn" data-command="justifyFull" title="Justifier">
+                        <i class="bi bi-justify"></i>
+                    </button>
+                </div>
+
+                <!-- Groupe indentation -->
+                <div class="editor-group">
+                    <button type="button" class="editor-btn" data-command="indent" title="Augmenter l'indentation">
+                        <i class="bi bi-indent"></i>
+                    </button>
+                    <button type="button" class="editor-btn" data-command="outdent" title="Diminuer l'indentation">
+                        <i class="bi bi-unindent"></i>
+                    </button>
                 </div>
 
                 <!-- Groupe listes -->
@@ -241,6 +254,34 @@
                 if (e.ctrlKey && e.key === 'u') {
                     e.preventDefault();
                     this.execCommand('underline');
+                }
+                
+                // Raccourcis pour l'indentation
+                if (e.key === 'Tab') {
+                    e.preventDefault();
+                    if (e.shiftKey) {
+                        this.execCommand('outdent');
+                    } else {
+                        this.execCommand('indent');
+                    }
+                }
+                
+                // Raccourcis pour l'alignement
+                if (e.ctrlKey && e.key === 'l') {
+                    e.preventDefault();
+                    this.execCommand('justifyLeft');
+                }
+                if (e.ctrlKey && e.key === 'e') {
+                    e.preventDefault();
+                    this.execCommand('justifyCenter');
+                }
+                if (e.ctrlKey && e.key === 'r') {
+                    e.preventDefault();
+                    this.execCommand('justifyRight');
+                }
+                if (e.ctrlKey && e.key === 'j') {
+                    e.preventDefault();
+                    this.execCommand('justifyFull');
                 }
             });
 
@@ -643,7 +684,7 @@
         }
 
         updateToolbar() {
-            const commands = ['bold', 'italic', 'underline'];
+            const commands = ['bold', 'italic', 'underline', 'justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull'];
             commands.forEach(command => {
                 const btn = this.toolbar.querySelector(`[data-command="${command}"]`);
                 if (btn) {

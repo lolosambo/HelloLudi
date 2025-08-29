@@ -1,5 +1,12 @@
 {% extends 'base.html.twig' %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('css/rich-editor.css') }}" rel="stylesheet">
+    <!-- Bootstrap Icons pour l'éditeur riche -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+{% endblock %}
+
 {% block content %}
     <h2>"Qui suis-je ?" - Edition</h2>
 
@@ -21,7 +28,8 @@
                 {{ form_label(form.content) }}
             </div>
             <div class="col-sm-12 col-md-8 form-editor">
-                {{ form_widget(form.content | raw) }}
+                {{ form_widget(form.content, {'attr': {'style': 'display: none;', 'id': 'whoami_content'}}) }}
+                <div id="richEditorContainer"></div>
                 {{ form_errors(form.content) }}
             </div>
         </div>
@@ -30,5 +38,72 @@
         {% endif %}
     </div>
     {{ form_end(form) }}
+
+    <!-- Modales pour l'éditeur riche -->
+    {% include 'components/_rich_editor_modals.html.twig' %}
+    
+    <!-- Scripts pour l'éditeur riche -->
+    <script src="{{ asset('js/RichEditor.js') }}"></script>
+    <script src="{{ asset('js/form-handler.js') }}"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Démarrage initialisation WhoAmI Rich Editor');
+            
+            // Attendre que tout soit chargé
+            setTimeout(function() {
+                const editorContainer = document.getElementById('richEditorContainer');
+                const hiddenField = document.getElementById('whoami_content');
+                
+                console.log('Container found:', !!editorContainer);
+                console.log('Hidden field found:', !!hiddenField);
+                console.log('RichEditor class available:', typeof RichEditor);
+                
+                if (editorContainer && hiddenField && typeof RichEditor !== 'undefined') {
+                    try {
+                        // Créer l'éditeur avec un ID personnalisé pour le champ caché
+                        window.richEditor = new RichEditor('richEditorContainer', {
+                            hiddenFieldId: 'whoami_content',
+                            placeholder: 'Présentez-vous ici...'
+                        });
+                        
+                        console.log('✅ Éditeur créé avec succès');
+                        
+                        // Charger le contenu existant s'il y en a un
+                        const existingContent = hiddenField.value;
+                        if (existingContent && existingContent.trim() !== '') {
+                            console.log('📄 Chargement contenu existant:', existingContent.length + ' caractères');
+                            window.richEditor.setContent(existingContent);
+                        }
+                        
+                        console.log('✨ WhoAmI Rich Editor initialisé avec succès!');
+                        
+                    } catch (error) {
+                        console.error('❌ Erreur lors de l\'initialisation:', error);
+                        
+                        // Fallback - afficher le champ textarea normal
+                        hiddenField.style.display = 'block';
+                        hiddenField.style.height = '300px';
+                        hiddenField.classList.add('form-control');
+                        editorContainer.style.display = 'none';
+                        
+                        alert('L\''éditeur riche n\'a pas pu se charger. Mode texte simple activé.');
+                    }
+                } else {
+                    console.error('❌ Éléments manquants pour l\'initialisation');
+                    
+                    // Mode dégradé
+                    if (hiddenField) {
+                        hiddenField.style.display = 'block';
+                        hiddenField.style.height = '300px';
+                        hiddenField.classList.add('form-control');
+                    }
+                    if (editorContainer) {
+                        editorContainer.innerHTML = '<p class="text-warning">L\''éditeur riche n\'est pas disponible. Utilisez le champ texte ci-dessous.</p>';
+                    }
+                }
+            }, 1000); // Attendre 1 seconde
+        });
+    </script>
 {% endblock %}
 
