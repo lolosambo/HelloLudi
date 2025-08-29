@@ -8,6 +8,7 @@
     <link href="{{ asset('css/post-content-styles.css') }}" rel="stylesheet">
     <link href="{{ asset('css/stable-images.css') }}" rel="stylesheet">
     <link href="{{ asset('css/image-fix-v3.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/table-editor.css') }}" rel="stylesheet">
     <style>
         /* SUPPRESSION FORCÉE DES AVATARS DE COMMENTAIRES */
         .comment-avatar,
@@ -1068,6 +1069,8 @@
     {{ parent() }}
     <!-- Dans le <head> ou avant </body> -->
     <script src="{{ asset('js/image-cleanup-universal.js') }}"></script>
+    <script src="{{ asset('js/table-sort.js') }}"></script>
+    <script src="{{ asset('js/table-read-only-protection.js') }}"></script>
     <script>
     /**
      * Galerie photo avec navigation - Version finale

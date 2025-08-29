@@ -272,6 +272,9 @@
                     <button type="button" class="editor-btn" id="imageBtn" title="Insérer une image">
                         <i class="bi bi-image"></i>
                     </button>
+                    <button type="button" class="editor-btn" id="videoBtn" title="Insérer une vidéo">
+                        <i class="bi bi-play-btn"></i>
+                    </button>
                     <button type="button" class="editor-btn" data-command="removeFormat" title="Supprimer le formatage">
                         <i class="bi bi-eraser"></i>
                     </button>
@@ -318,6 +321,11 @@
             document.getElementById('imageBtn')?.addEventListener('click', (e) => {
                 e.preventDefault();
                 this.showImageModal();
+            });
+            
+            document.getElementById('videoBtn')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.showVideoModal();
             });
 
             // Événements de l'éditeur
@@ -856,6 +864,15 @@
             
             this.resetImageModal();
         }
+        
+        showVideoModal() {
+            this.saveSelection();
+            
+            const modal = new bootstrap.Modal(document.getElementById('videoModal'));
+            modal.show();
+            
+            this.resetVideoModal();
+        }
 
         resetImageModal() {
             document.getElementById('imageUrl').value = '';
@@ -870,13 +887,27 @@
             
             this.currentEditingImage = null;
         }
+        
+        resetVideoModal() {
+            document.getElementById('videoUrl').value = '';
+            document.getElementById('videoPreview').innerHTML = '';
+            document.getElementById('videoConfig').style.display = 'none';
+            document.getElementById('insertVideoBtn').disabled = true;
+            
+            // Réinitialiser les champs de configuration
+            document.getElementById('videoAlign').value = 'center';
+            document.getElementById('videoWidth').value = '560';
+            document.getElementById('videoHeight').value = '315';
+            document.getElementById('videoAutoplay').checked = false;
+        }
 
         setupImageModalEvents() {
             if (this.imageEventsSetup) return;
             this.imageEventsSetup = true;
             
-            console.log('🔧 Configuration événements modale image...');
+            console.log('🔧 Configuration événements modales image et vidéo...');
             
+            // Événements pour la modale image
             const imageUrl = document.getElementById('imageUrl');
             const imageFileInput = document.getElementById('imageFileInput');
             const insertImageBtn = document.getElementById('insertImageBtn');
@@ -901,7 +932,25 @@
                 });
             }
             
-            console.log('✅ Événements modale configurés');
+            // Événements pour la modale vidéo
+            const videoUrl = document.getElementById('videoUrl');
+            const insertVideoBtn = document.getElementById('insertVideoBtn');
+            
+            if (videoUrl) {
+                videoUrl.addEventListener('input', (e) => {
+                    this.previewVideo(e.target.value);
+                });
+            }
+            
+            if (insertVideoBtn) {
+                insertVideoBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    console.log('🎯 Clic sur bouton insertion vidéo');
+                    this.insertVideo();
+                });
+            }
+            
+            console.log('✅ Événements modales configurés');
         }
 
         previewImageUrl(url) {
@@ -1030,6 +1079,128 @@
             }, 100);
             
             console.log('✅ Nouvelle image créée');
+        }
+        
+        // Méthodes pour la gestion des vidéos
+        previewVideo(url) {
+            const preview = document.getElementById('videoPreview');
+            const config = document.getElementById('videoConfig');
+            const insertBtn = document.getElementById('insertVideoBtn');
+            
+            if (!url) {
+                preview.innerHTML = '';
+                config.style.display = 'none';
+                insertBtn.disabled = true;
+                return;
+            }
+            
+            const videoData = this.parseVideoUrl(url);
+            if (!videoData) {
+                preview.innerHTML = '<p class="text-danger">URL vidéo non supportée ou invalide</p>';
+                config.style.display = 'none';
+                insertBtn.disabled = true;
+                return;
+            }
+            
+            preview.innerHTML = `
+                <div class="video-container">
+                    <iframe src="${videoData.embedUrl}" 
+                            frameborder="0" 
+                            allowfullscreen 
+                            style="width: 100%; height: 200px;">
+                    </iframe>
+                </div>
+                <p class="mt-2 text-muted">${videoData.platform} - ${videoData.id}</p>
+            `;
+            
+            config.style.display = 'block';
+            insertBtn.disabled = false;
+        }
+        
+        parseVideoUrl(url) {
+            // YouTube
+            let match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/);
+            if (match) {
+                return {
+                    platform: 'YouTube',
+                    id: match[1],
+                    embedUrl: `https://www.youtube.com/embed/${match[1]}`
+                };
+            }
+            
+            // Vimeo
+            match = url.match(/vimeo\.com\/(\d+)/);
+            if (match) {
+                return {
+                    platform: 'Vimeo',
+                    id: match[1],
+                    embedUrl: `https://player.vimeo.com/video/${match[1]}`
+                };
+            }
+            
+            // Dailymotion
+            match = url.match(/dailymotion\.com\/video\/([^_]+)/);
+            if (match) {
+                return {
+                    platform: 'Dailymotion',
+                    id: match[1],
+                    embedUrl: `https://www.dailymotion.com/embed/video/${match[1]}`
+                };
+            }
+            
+            return null;
+        }
+        
+        insertVideo() {
+            console.log('🎯 Insertion vidéo');
+            
+            const url = document.getElementById('videoUrl').value;
+            const align = document.getElementById('videoAlign').value || 'center';
+            const width = document.getElementById('videoWidth').value || '560';
+            const height = document.getElementById('videoHeight').value || '315';
+            const autoplay = document.getElementById('videoAutoplay').checked;
+            
+            if (!url) {
+                alert('Veuillez saisir une URL de vidéo.');
+                return;
+            }
+            
+            const videoData = this.parseVideoUrl(url);
+            if (!videoData) {
+                alert('URL vidéo non supportée. Formats supportés : YouTube, Vimeo, Dailymotion.');
+                return;
+            }
+            
+            let embedUrl = videoData.embedUrl;
+            if (autoplay && videoData.platform === 'YouTube') {
+                embedUrl += '?autoplay=1';
+            }
+            
+            const videoHTML = `
+                <div class="video-container video-${align}" style="width: ${width}px; margin: 20px ${align === 'center' ? 'auto' : align === 'right' ? '0 0 20px 20px' : '0 20px 20px 0'}; ${align === 'left' ? 'float: left;' : align === 'right' ? 'float: right;' : ''}">
+                    <div class="ratio" style="--bs-aspect-ratio: ${(parseInt(height) / parseInt(width) * 100).toFixed(2)}%;">
+                        <iframe src="${embedUrl}" 
+                                frameborder="0" 
+                                allowfullscreen 
+                                data-video-platform="${videoData.platform.toLowerCase()}"
+                                data-video-id="${videoData.id}">
+                        </iframe>
+                    </div>
+                </div>
+            `;
+            
+            this.restoreSelection();
+            this.execCommand('insertHTML', videoHTML);
+            
+            const modal = document.getElementById('videoModal');
+            const bootstrapModal = bootstrap.Modal.getInstance(modal);
+            if (bootstrapModal) {
+                bootstrapModal.hide();
+            }
+            
+            this.updateHiddenField();
+            
+            console.log(`✅ Vidéo ${videoData.platform} insérée: ${videoData.id}`);
         }
 
         // ✅ CHARGEMENT CONTENU SANS SÉLECTION AUTOMATIQUE
