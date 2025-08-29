@@ -41,6 +41,8 @@ RUN sed -i 's|/var/www/html|/var/www/html/helloludi/public|g' /etc/apache2/sites
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
+
 # Copy custom entrypoint
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
