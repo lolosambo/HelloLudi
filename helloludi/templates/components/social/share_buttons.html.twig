@@ -1,0 +1,482 @@
+{#
+    Composant de boutons de partage sur les réseaux sociaux
+    
+    Variables attendues:
+    - title: Titre de l'article/contenu à partager
+    - url: URL complète de la page à partager
+    - description (optionnel): Description pour certains réseaux
+    - hashtags (optionnel): Tags pour Twitter/X (sans le #)
+#}
+
+{% set currentUrl = url is defined ? url : (app.request.schemeAndHttpHost ~ app.request.requestUri) %}
+{% set shareTitle = title|default('Découvrez cet article sur Hello Ludi') %}
+{% set shareDescription = description|default('Découvrez ce contenu intéressant sur le blog Hello Ludi !') %}
+{% set shareHashtags = hashtags|default('helloludi,blog') %}
+
+{# URLs de partage pour chaque plateforme #}
+{% set shareUrls = {
+    'facebook': 'https://www.facebook.com/sharer/sharer.php?u=' ~ currentUrl|url_encode,
+    'twitter': 'https://twitter.com/intent/tweet?text=' ~ shareTitle|url_encode ~ '&url=' ~ currentUrl|url_encode ~ '&hashtags=' ~ shareHashtags|url_encode,
+    'linkedin': 'https://www.linkedin.com/sharing/share-offsite/?url=' ~ currentUrl|url_encode,
+    'pinterest': 'https://pinterest.com/pin/create/button/?url=' ~ currentUrl|url_encode ~ '&description=' ~ shareTitle|url_encode,
+    'whatsapp': 'https://wa.me/?text=' ~ (shareTitle ~ ' ' ~ currentUrl)|url_encode,
+    'telegram': 'https://t.me/share/url?url=' ~ currentUrl|url_encode ~ '&text=' ~ shareTitle|url_encode,
+    'email': 'mailto:?subject=' ~ shareTitle|url_encode ~ '&body=' ~ (shareDescription ~ ' ' ~ currentUrl)|url_encode,
+    'copy': currentUrl
+} %}
+
+<div class="social-share-container" id="socialShareContainer">
+    <div class="share-header">
+        <h5><i class="bi bi-share"></i> Partager cet article</h5>
+        <p class="share-subtitle">Faites découvrir ce contenu à vos amis !</p>
+    </div>
+    
+    <div class="share-buttons-grid">
+        <!-- Facebook -->
+        <button class="share-btn facebook-btn" 
+                data-url="{{ shareUrls.facebook }}" 
+                data-platform="facebook"
+                title="Partager sur Facebook">
+            <i class="fab fa-facebook-f"></i>
+            <span class="share-label">Facebook</span>
+        </button>
+        
+        <!-- Twitter/X -->
+        <button class="share-btn twitter-btn" 
+                data-url="{{ shareUrls.twitter }}" 
+                data-platform="twitter"
+                title="Partager sur X (Twitter)">
+            <i class="fab fa-twitter"></i>
+            <span class="share-label">Twitter</span>
+        </button>
+        
+        <!-- LinkedIn -->
+        <button class="share-btn linkedin-btn" 
+                data-url="{{ shareUrls.linkedin }}" 
+                data-platform="linkedin"
+                title="Partager sur LinkedIn">
+            <i class="fab fa-linkedin-in"></i>
+            <span class="share-label">LinkedIn</span>
+        </button>
+        
+        <!-- Pinterest -->
+        <button class="share-btn pinterest-btn" 
+                data-url="{{ shareUrls.pinterest }}" 
+                data-platform="pinterest"
+                title="Épingler sur Pinterest">
+            <i class="fab fa-pinterest-p"></i>
+            <span class="share-label">Pinterest</span>
+        </button>
+        
+        <!-- WhatsApp -->
+        <button class="share-btn whatsapp-btn" 
+                data-url="{{ shareUrls.whatsapp }}" 
+                data-platform="whatsapp"
+                title="Partager sur WhatsApp">
+            <i class="fab fa-whatsapp"></i>
+            <span class="share-label">WhatsApp</span>
+        </button>
+        
+        <!-- Telegram -->
+        <button class="share-btn telegram-btn" 
+                data-url="{{ shareUrls.telegram }}" 
+                data-platform="telegram"
+                title="Partager sur Telegram">
+            <i class="fab fa-telegram-plane"></i>
+            <span class="share-label">Telegram</span>
+        </button>
+        
+        <!-- Email -->
+        <button class="share-btn email-btn" 
+                data-url="{{ shareUrls.email }}" 
+                data-platform="email"
+                title="Partager par email">
+            <i class="fas fa-envelope"></i>
+            <span class="share-label">Email</span>
+        </button>
+        
+        <!-- Copier le lien -->
+        <button class="share-btn copy-btn" 
+                data-url="{{ shareUrls.copy }}" 
+                data-platform="copy"
+                title="Copier le lien">
+            <i class="fas fa-link"></i>
+            <span class="share-label">Copier</span>
+        </button>
+    </div>
+    
+    <!-- Message de confirmation pour la copie -->
+    <div class="copy-notification" id="copyNotification" style="display: none;">
+        <i class="bi bi-check-circle-fill"></i>
+        Lien copié dans le presse-papiers !
+    </div>
+</div>
+
+<style>
+/* Styles pour les boutons de partage social */
+.social-share-container {
+    background: linear-gradient(135deg, #f8f6f0, #e8e3d3);
+    border-radius: 20px;
+    padding: 2rem;
+    margin: 2rem 0;
+    text-align: center;
+    box-shadow: 0 8px 25px rgba(139, 120, 93, 0.15);
+    position: relative;
+    overflow: hidden;
+}
+
+.social-share-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #ff6b6b, #8b785d, #d4c4a8);
+}
+
+.share-header h5 {
+    color: #5d4e37;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    font-size: 1.3rem;
+}
+
+.share-header .share-subtitle {
+    color: #8b785d;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+}
+
+.share-buttons-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.share-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 0.5rem;
+    border: none;
+    border-radius: 15px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.share-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transition: all 0.5s ease;
+    transform: translate(-50%, -50%);
+}
+
+.share-btn:hover::before {
+    width: 200px;
+    height: 200px;
+}
+
+.share-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.share-btn i {
+    font-size: 1.3rem;
+    z-index: 2;
+    position: relative;
+}
+
+.share-label {
+    z-index: 2;
+    position: relative;
+    font-size: 0.85rem;
+}
+
+/* Couleurs spécifiques à chaque plateforme */
+.facebook-btn {
+    background: linear-gradient(135deg, #1877f2, #42a5f5);
+}
+
+.twitter-btn {
+    background: linear-gradient(135deg, #1da1f2, #0d8bd9);
+}
+
+.linkedin-btn {
+    background: linear-gradient(135deg, #0077b5, #00a0dc);
+}
+
+.pinterest-btn {
+    background: linear-gradient(135deg, #bd081c, #e60023);
+}
+
+.whatsapp-btn {
+    background: linear-gradient(135deg, #25d366, #128c7e);
+}
+
+.telegram-btn {
+    background: linear-gradient(135deg, #0088cc, #0088cc);
+}
+
+.email-btn {
+    background: linear-gradient(135deg, #ea4335, #fbbc04);
+}
+
+.copy-btn {
+    background: linear-gradient(135deg, #8b785d, #a0926f);
+}
+
+/* Notification de copie */
+.copy-notification {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(40, 167, 69, 0.95);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 25px;
+    font-weight: 500;
+    box-shadow: 0 5px 20px rgba(40, 167, 69, 0.4);
+    z-index: 100;
+    animation: copyNotificationShow 0.3s ease;
+}
+
+@keyframes copyNotificationShow {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+.copy-notification i {
+    margin-right: 0.5rem;
+    font-size: 1.1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .share-buttons-grid {
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 0.8rem;
+    }
+    
+    .share-btn {
+        padding: 0.8rem 0.3rem;
+        font-size: 0.8rem;
+    }
+    
+    .share-btn i {
+        font-size: 1.1rem;
+    }
+    
+    .share-label {
+        font-size: 0.75rem;
+    }
+    
+    .social-share-container {
+        padding: 1.5rem;
+        margin: 1.5rem 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .share-buttons-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.6rem;
+    }
+    
+    .share-btn {
+        padding: 0.6rem 0.2rem;
+    }
+    
+    .share-label {
+        font-size: 0.7rem;
+    }
+}
+
+/* Animation au chargement */
+.social-share-container {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Effet de pulsation pour attirer l'attention */
+.share-btn.pulse {
+    animation: socialPulse 2s ease-in-out;
+}
+
+@keyframes socialPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gestion des boutons de partage social
+    const shareButtons = document.querySelectorAll('.share-btn');
+    const copyNotification = document.getElementById('copyNotification');
+    
+    shareButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const platform = this.getAttribute('data-platform');
+            const url = this.getAttribute('data-url');
+            
+            // Ajouter un effet de pulsation
+            this.classList.add('pulse');
+            setTimeout(() => {
+                this.classList.remove('pulse');
+            }, 2000);
+            
+            if (platform === 'copy') {
+                // Copier le lien dans le presse-papiers
+                copyToClipboard(url);
+            } else if (platform === 'email') {
+                // Ouvrir le client email par défaut
+                window.location.href = url;
+            } else {
+                // Ouvrir la fenêtre de partage pour les autres plateformes
+                openShareWindow(url, platform);
+            }
+        });
+    });
+    
+    function openShareWindow(url, platform) {
+        const windowFeatures = {
+            width: 600,
+            height: 400,
+            centerscreen: 1,
+            scrollbars: 1,
+            resizable: 1
+        };
+        
+        // Calculer la position centrée
+        const left = (screen.width - windowFeatures.width) / 2;
+        const top = (screen.height - windowFeatures.height) / 2;
+        
+        const featuresString = `width=${windowFeatures.width},height=${windowFeatures.height},left=${left},top=${top},scrollbars=yes,resizable=yes`;
+        
+        // Ouvrir dans une nouvelle fenêtre popup
+        const shareWindow = window.open(url, `share_${platform}`, featuresString);
+        
+        // Retourner le focus à la fenêtre parent après fermeture
+        if (shareWindow) {
+            const checkClosed = setInterval(() => {
+                if (shareWindow.closed) {
+                    clearInterval(checkClosed);
+                    window.focus();
+                }
+            }, 1000);
+        }
+    }
+    
+    function copyToClipboard(text) {
+        // Méthode moderne avec l'API Clipboard
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(text).then(() => {
+                showCopyNotification();
+            }).catch(err => {
+                // Fallback si l'API Clipboard échoue
+                fallbackCopyToClipboard(text);
+            });
+        } else {
+            // Fallback pour les navigateurs plus anciens
+            fallbackCopyToClipboard(text);
+        }
+    }
+    
+    function fallbackCopyToClipboard(text) {
+        // Créer un élément textarea temporaire
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        
+        textArea.focus();
+        textArea.select();
+        
+        try {
+            const result = document.execCommand('copy');
+            if (result) {
+                showCopyNotification();
+            }
+        } catch (err) {
+            console.error('Erreur lors de la copie :', err);
+            // Afficher une alerte en fallback
+            alert('Lien : ' + text + '\n\nVeuillez copier manuellement ce lien.');
+        }
+        
+        document.body.removeChild(textArea);
+    }
+    
+    function showCopyNotification() {
+        if (copyNotification) {
+            copyNotification.style.display = 'block';
+            
+            // Masquer après 3 secondes
+            setTimeout(() => {
+                copyNotification.style.display = 'none';
+            }, 3000);
+        }
+    }
+    
+    // Analytics/tracking optionnel pour mesurer les partages
+    function trackShare(platform) {
+        // Exemple avec Google Analytics si disponible
+        if (typeof gtag !== 'undefined') {
+            gtag('event', 'share', {
+                method: platform,
+                content_type: 'article',
+                content_id: window.location.pathname
+            });
+        }
+        
+        // Ou avec d'autres outils d'analytics
+        console.log(`Article partagé sur ${platform}`);
+    }
+    
+    // Attacher le tracking aux boutons
+    shareButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const platform = this.getAttribute('data-platform');
+            trackShare(platform);
+        });
+    });
+});
+</script>

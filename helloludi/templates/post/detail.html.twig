@@ -1,5 +1,23 @@
 {% extends 'base.html.twig' %}
 
+{% block title %}{{ post.getTitle() }} - Hello Ludi{% endblock %}
+
+{% block meta_description %}{{ post.getContent()|striptags|slice(0, 160) }}{% endblock %}
+
+{% block og_type %}article{% endblock %}
+
+{% block og_title %}{{ post.getTitle() }}{% endblock %}
+
+{% block og_description %}{{ post.getContent()|striptags|slice(0, 160) }}{% endblock %}
+
+{% block og_image %}
+    {% if post.getImage() %}
+        {{ app.request.schemeAndHttpHost }}/{{ post.getImage() }}
+    {% else %}
+        {{ parent() }}
+    {% endif %}
+{% endblock %}
+
 {% block stylesheets %}
     {{ parent() }}
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css" rel="stylesheet">
@@ -879,6 +897,14 @@
                     </a>
                 {% endif %}
             </div>
+            
+            <!-- Section de partage sur les réseaux sociaux -->
+            {% include 'components/social/share_buttons.html.twig' with {
+                'title': post.getTitle(),
+                'url': app.request.schemeAndHttpHost ~ path('post_detail', {'post': post.getId()}),
+                'description': post.getContent()|striptags|slice(0, 150) ~ '...',
+                'hashtags': post.category == 'recipe' ? 'recette,cuisine,helloludi' : (post.category == 'photo' ? 'photo,voyage,helloludi' : 'helloludi,blog')
+            } %}
 
             <!-- Section de notation pour les recettes -->
             {% if post.category == "recipe" %}
@@ -1071,6 +1097,14 @@
     <script src="{{ asset('js/image-cleanup-universal.js') }}"></script>
     <script src="{{ asset('js/table-sort.js') }}"></script>
     <script src="{{ asset('js/table-read-only-protection.js') }}"></script>
+    
+    {% if jsonLdData is defined %}
+        <!-- Données structurées JSON-LD pour le SEO -->
+        <script type="application/ld+json">
+            {{ jsonLdData|json_encode|raw }}
+        </script>
+    {% endif %}
+    
     <script>
     /**
      * Galerie photo avec navigation - Version finale

@@ -1,0 +1,88 @@
+<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="backgroundGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f5f4f2;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#d4c4a8;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8b785d;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#5d4e37;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8b785d;stop-opacity:1" />
+    </linearGradient>
+    
+    <pattern id="dotPattern" x="0" y="0" width="50" height="50" patternUnits="userSpaceOnUse">
+      <circle cx="25" cy="25" r="2" fill="rgba(255,255,255,0.1)"/>
+    </pattern>
+  </defs>
+  
+  <!-- Fond dégradé -->
+  <rect width="1200" height="630" fill="url(#backgroundGradient)"/>
+  
+  <!-- Motif de points -->
+  <rect width="1200" height="630" fill="url(#dotPattern)"/>
+  
+  <!-- Cercle décoratif -->
+  <circle cx="1000" cy="150" r="80" fill="rgba(255,107,107,0.2)"/>
+  <circle cx="200" cy="500" r="60" fill="rgba(255,255,255,0.1)"/>
+  
+  <!-- Titre principal -->
+  <text x="600" y="280" 
+        font-family="Arial, sans-serif" 
+        font-size="72" 
+        font-weight="bold" 
+        text-anchor="middle" 
+        fill="url(#textGradient)">
+    Hello Ludi
+  </text>
+  
+  <!-- Sous-titre -->
+  <text x="600" y="350" 
+        font-family="Arial, sans-serif" 
+        font-size="32" 
+        text-anchor="middle" 
+        fill="#8b785d">
+    Blog personnel
+  </text>
+  
+  <!-- Ligne décorative -->
+  <line x1="400" y1="400" x2="800" y2="400" 
+        stroke="#ff6b6b" 
+        stroke-width="4" 
+        stroke-linecap="round"/>
+  
+  <!-- Icônes décoratives -->
+  <g transform="translate(450, 450)">
+    <!-- Icône recette -->
+    <circle cx="0" cy="0" r="25" fill="#ff6b6b" opacity="0.8"/>
+    <text x="0" y="8" font-size="24" text-anchor="middle" fill="white">🍽️</text>
+  </g>
+  
+  <g transform="translate(550, 450)">
+    <!-- Icône photo -->
+    <circle cx="0" cy="0" r="25" fill="#8b785d" opacity="0.8"/>
+    <text x="0" y="8" font-size="24" text-anchor="middle" fill="white">📸</text>
+  </g>
+  
+  <g transform="translate(650, 450)">
+    <!-- Icône actualité -->
+    <circle cx="0" cy="0" r="25" fill="#d4c4a8" opacity="0.8"/>
+    <text x="0" y="8" font-size="24" text-anchor="middle" fill="white">📝</text>
+  </g>
+  
+  <g transform="translate(750, 450)">
+    <!-- Icône événement -->
+    <circle cx="0" cy="0" r="25" fill="#ff6b6b" opacity="0.8"/>
+    <text x="0" y="8" font-size="24" text-anchor="middle" fill="white">📅</text>
+  </g>
+  
+  <!-- Texte descriptif -->
+  <text x="600" y="530" 
+        font-family="Arial, sans-serif" 
+        font-size="24" 
+        text-anchor="middle" 
+        fill="#8b785d"
+        opacity="0.8">
+    Recettes • Photos • Actualités • Événements
+  </text>
+</svg>

@@ -1,0 +1,255 @@
+{#
+    Version compacte des boutons de partage social
+    
+    Variables attendues:
+    - title: Titre de l'article/contenu à partager
+    - url: URL complète de la page à partager
+    - size (optionnel): 'small' pour une version encore plus compacte
+#}
+
+{% set currentUrl = url is defined ? url : (app.request.schemeAndHttpHost ~ app.request.requestUri) %}
+{% set shareTitle = title|default('Découvrez cet article sur Hello Ludi') %}
+{% set isSmall = size is defined and size == 'small' %}
+
+{# URLs de partage simplifiées pour la version compacte #}
+{% set shareUrls = {
+    'facebook': 'https://www.facebook.com/sharer/sharer.php?u=' ~ currentUrl|url_encode,
+    'twitter': 'https://twitter.com/intent/tweet?text=' ~ shareTitle|url_encode ~ '&url=' ~ currentUrl|url_encode,
+    'whatsapp': 'https://wa.me/?text=' ~ (shareTitle ~ ' ' ~ currentUrl)|url_encode,
+    'copy': currentUrl
+} %}
+
+<div class=\"share-compact {{ isSmall ? 'share-compact-small' : '' }}\" data-url=\"{{ currentUrl }}\" data-title=\"{{ shareTitle }}\">
+    <span class=\"share-label-compact\">
+        <i class=\"bi bi-share-fill\"></i>
+        {% if not isSmall %}<span class=\"share-text\">Partager</span>{% endif %}
+    </span>
+    
+    <div class=\"share-buttons-compact\">
+        <button class=\"share-btn-compact facebook\" 
+                data-url=\"{{ shareUrls.facebook }}\" 
+                data-platform=\"facebook\"
+                title=\"Partager sur Facebook\">
+            <i class=\"fab fa-facebook-f\"></i>
+        </button>
+        
+        <button class=\"share-btn-compact twitter\" 
+                data-url=\"{{ shareUrls.twitter }}\" 
+                data-platform=\"twitter\"
+                title=\"Partager sur X (Twitter)\">
+            <i class=\"fab fa-x-twitter\"></i>
+        </button>
+        
+        <button class=\"share-btn-compact whatsapp\" 
+                data-url=\"{{ shareUrls.whatsapp }}\" 
+                data-platform=\"whatsapp\"
+                title=\"Partager sur WhatsApp\">
+            <i class=\"fab fa-whatsapp\"></i>
+        </button>
+        
+        <button class=\"share-btn-compact copy\" 
+                data-url=\"{{ shareUrls.copy }}\" 
+                data-platform=\"copy\"
+                title=\"Copier le lien\">
+            <i class=\"fas fa-link\"></i>
+        </button>
+    </div>
+</div>
+
+<style>
+/* Boutons de partage compacts */
+.share-compact {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background: rgba(139, 120, 93, 0.1);
+    border-radius: 25px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.share-compact:hover {
+    background: rgba(139, 120, 93, 0.15);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(139, 120, 93, 0.2);
+}
+
+.share-label-compact {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: #8b785d;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.share-text {
+    font-size: 0.85rem;
+}
+
+.share-buttons-compact {
+    display: flex;
+    gap: 0.3rem;
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: all 0.3s ease;
+    max-width: 0;
+    overflow: hidden;
+}
+
+.share-compact:hover .share-buttons-compact {
+    opacity: 1;
+    transform: translateX(0);
+    max-width: 200px;
+}
+
+.share-btn-compact {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.share-btn-compact:hover {
+    transform: scale(1.1);
+}
+
+.share-btn-compact.facebook {
+    background: #1877f2;
+}
+
+.share-btn-compact.twitter {
+    background: #1da1f2;
+}
+
+.share-btn-compact.whatsapp {
+    background: #25d366;
+}
+
+.share-btn-compact.copy {
+    background: #8b785d;
+}
+
+/* Version encore plus petite */
+.share-compact-small {
+    padding: 0.3rem;
+    gap: 0.3rem;
+}
+
+.share-compact-small .share-label-compact {
+    font-size: 0.8rem;
+}
+
+.share-compact-small .share-btn-compact {
+    width: 28px;
+    height: 28px;
+    font-size: 0.7rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .share-compact {
+        transform: none !important;
+    }
+    
+    .share-compact .share-buttons-compact {
+        opacity: 1;
+        transform: translateX(0);
+        max-width: none;
+    }
+    
+    .share-text {
+        display: none;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gestion des boutons de partage compacts
+    const compactShareButtons = document.querySelectorAll('.share-btn-compact');
+    
+    compactShareButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const platform = this.getAttribute('data-platform');
+            const url = this.getAttribute('data-url');
+            
+            if (platform === 'copy') {
+                copyToClipboardCompact(url, this);
+            } else if (platform === 'email') {
+                window.location.href = url;
+            } else {
+                openShareWindowCompact(url, platform);
+            }
+            
+            // Animation de feedback
+            this.style.transform = 'scale(0.9)';
+            setTimeout(() => {
+                this.style.transform = '';
+            }, 150);
+        });
+    });
+    
+    function openShareWindowCompact(url, platform) {
+        const features = 'width=600,height=400,scrollbars=yes,resizable=yes';
+        window.open(url, `share_${platform}`, features);
+    }
+    
+    function copyToClipboardCompact(text, button) {
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(text).then(() => {
+                showCompactCopyFeedback(button);
+            }).catch(() => {
+                fallbackCopyToClipboardCompact(text, button);
+            });
+        } else {
+            fallbackCopyToClipboardCompact(text, button);
+        }
+    }
+    
+    function fallbackCopyToClipboardCompact(text, button) {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        
+        try {
+            const success = document.execCommand('copy');
+            if (success) {
+                showCompactCopyFeedback(button);
+            }
+        } catch (err) {
+            console.error('Erreur lors de la copie :', err);
+        }
+        
+        document.body.removeChild(textArea);
+    }
+    
+    function showCompactCopyFeedback(button) {
+        const originalIcon = button.innerHTML;
+        button.innerHTML = '<i class=\"fas fa-check\"></i>';
+        button.style.background = '#28a745';
+        
+        setTimeout(() => {
+            button.innerHTML = originalIcon;
+            button.style.background = '';
+        }, 2000);
+    }
+});
+</script>

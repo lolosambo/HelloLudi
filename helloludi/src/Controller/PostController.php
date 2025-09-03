@@ -12,6 +12,7 @@ use App\Form\RatingType;
 use App\Repository\PostRepository;
 use App\Form\PostType;
 use App\Service\ImageUploadService;
+use App\Service\SocialShareService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -183,7 +184,8 @@ class PostController extends AbstractController
         Post $post,
         Security $security,
         EntityManagerInterface $em,
-        FormFactoryInterface $formFactory
+        FormFactoryInterface $formFactory,
+        SocialShareService $socialShareService
     ){
         $comment = new Comment();
         $form = $formFactory->create(CommentType::class, $comment, [
@@ -235,6 +237,11 @@ class PostController extends AbstractController
             $this->addFlash('success', 'Merci pour votre vote !');
         }
 
+        // Générer les données de partage social et SEO
+        $shareUrls = $socialShareService->generateShareUrls($post);
+        $openGraphData = $socialShareService->generateOpenGraphData($post);
+        $jsonLdData = $socialShareService->generateJsonLdData($post);
+
         $eventsPosts = $em->getRepository(Post::class)->findByCategory("event");
         return $this->render('post/detail.html.twig', [
             'post' => $post,
@@ -245,6 +252,9 @@ class PostController extends AbstractController
             'ratingForm' => $ratingForm->createView(),
             'userRated' => $userRated,
             'userRating' => $userRating,
+            'shareUrls' => $shareUrls,
+            'openGraphData' => $openGraphData,
+            'jsonLdData' => $jsonLdData,
         ]);
     }
 

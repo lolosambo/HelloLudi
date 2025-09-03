@@ -91,7 +91,7 @@
                         <div class="card-actions mt-auto">
                             <div class="d-flex justify-content-between align-items-center">
                                 <a href="{{ path('post_detail', {"post": post.getId()}) }}" class="btn btn-sm btn-salmon read-more-btn">
-                                    <i class="fi fi-rs-comment-dots"></i> Lire la suite
+                                    <i class="fi fi-rs-arrow-right"></i> Lire la suite
                                 </a>
                                 <div class="stats">
                                     <span class="stat-item" data-tooltip="J'aime">
@@ -100,6 +100,42 @@
                                     <span class="stat-item" data-tooltip="Commentaires">
                                         <i class="fi fi-rs-comment-dots"></i> {{ post.getComments() | length }}
                                     </span>
+                                    <!-- Bouton de partage simple -->
+                                    <div class="share-simple" title="Partager cet article">
+                                        <i class="fas fa-share-alt"></i>
+                                        <span class="share-text">Partager</span>
+                                        <div class="share-dropdown">
+                                            <div class="dropdown-header">Partager sur :</div>
+                                            <a href="https://www.facebook.com/sharer/sharer.php?u={{ app.request.schemeAndHttpHost ~ path('post_detail', {'post': post.getId()})|url_encode }}" 
+                                               target="_blank" class="share-link facebook">
+                                                <i class="fab fa-facebook-f"></i> Facebook
+                                            </a>
+                                            <a href="https://twitter.com/intent/tweet?text={{ post.getTitle()|url_encode }}&amp;url={{ app.request.schemeAndHttpHost ~ path('post_detail', {'post': post.getId()})|url_encode }}" 
+                                               target="_blank" class="share-link twitter">
+                                                <i class="fab fa-twitter"></i> Twitter
+                                            </a>
+                                            <a href="https://wa.me/?text={{ (post.getTitle() ~ ' ' ~ app.request.schemeAndHttpHost ~ path('post_detail', {'post': post.getId()}))|url_encode }}" 
+                                               target="_blank" class="share-link whatsapp">
+                                                <i class="fab fa-whatsapp"></i> WhatsApp
+                                            </a>
+                                            <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ app.request.schemeAndHttpHost ~ path('post_detail', {'post': post.getId()})|url_encode }}" 
+                                               target="_blank" class="share-link linkedin">
+                                                <i class="fab fa-linkedin-in"></i> LinkedIn
+                                            </a>
+                                            <a href="https://t.me/share/url?url={{ app.request.schemeAndHttpHost ~ path('post_detail', {'post': post.getId()})|url_encode }}&text={{ post.getTitle()|url_encode }}" 
+                                               target="_blank" class="share-link telegram">
+                                                <i class="fab fa-telegram-plane"></i> Telegram
+                                            </a>
+                                            <a href="mailto:?subject={{ post.getTitle()|url_encode }}&body={{ (post.getTitle() ~ ' - ' ~ app.request.schemeAndHttpHost ~ path('post_detail', {'post': post.getId()}))|url_encode }}" 
+                                               target="_blank" class="share-link email">
+                                                <i class="fas fa-envelope"></i> Email
+                                            </a>
+                                            <button class="share-link copy" 
+                                                    data-copy-url="{{ app.request.schemeAndHttpHost ~ path('post_detail', {'post': post.getId()}) }}">
+                                                <i class="fas fa-link"></i> Copier le lien
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -216,4 +252,296 @@
 
 {% block stylesheets %}
     {{ parent() }}
+    <style>
+        /* Harmonisation du style des boutons */
+        .read-more-btn {
+            border-radius: 8px !important;
+            padding: 0.4rem 0.8rem !important;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border: 1px solid rgba(139, 120, 93, 0.4);
+        }
+        
+        /* Styles pour le bouton de partage simple */
+        .share-simple {
+            position: relative;
+            display: inline-flex !important;
+            align-items: center;
+            color: #8b785d;
+            cursor: pointer;
+            padding: 0.4rem 0.6rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(139, 120, 93, 0.4);
+            margin-left: 0.5rem;
+            opacity: 1;
+            visibility: visible;
+            z-index: 10;
+        }
+        
+        .share-simple:hover {
+            background: rgba(139, 120, 93, 0.1);
+            color: #ff6b6b;
+            border-color: #ff6b6b;
+        }
+        
+        .share-simple i {
+            font-size: 0.9rem;
+        }
+        
+        .share-text {
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 0.3rem;
+            color: #8b785d;
+        }
+        
+        .dropdown-header {
+            font-size: 0.7rem;
+            color: #8b785d;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.3rem;
+            padding-bottom: 0.3rem;
+            border-bottom: 1px solid rgba(139, 120, 93, 0.2);
+        }
+        
+        /* Overlay pour la dropdown */
+        .share-simple:hover::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 9999;
+            opacity: 0;
+            animation: fadeIn 0.3s ease forwards;
+        }
+        
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+        
+        .share-dropdown {
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 12px 35px rgba(139, 120, 93, 0.4);
+            padding: 1.5rem;
+            width: 250px;
+            max-height: 80vh;
+            overflow-y: auto;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 99999 !important;
+            border: 1px solid rgba(139, 120, 93, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        .share-simple:hover .share-dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, -50%) !important;
+        }
+        
+        .share-link {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.5rem 0.6rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            border: none;
+            background: none;
+            width: 100%;
+            cursor: pointer;
+            margin-bottom: 0.15rem;
+            text-align: left;
+        }
+        
+        .share-link:last-child {
+            margin-bottom: 0;
+        }
+        
+        .share-link:hover {
+            transform: translateX(3px);
+        }
+        
+        .share-link.facebook {
+            color: #1877f2;
+        }
+        
+        .share-link.facebook:hover {
+            background: rgba(24, 119, 242, 0.1);
+            color: #1877f2;
+        }
+        
+        .share-link.twitter {
+            color: #1da1f2;
+        }
+        
+        .share-link.twitter:hover {
+            background: rgba(29, 161, 242, 0.1);
+            color: #1da1f2;
+        }
+        
+        .share-link.whatsapp {
+            color: #25d366;
+        }
+        
+        .share-link.whatsapp:hover {
+            background: rgba(37, 211, 102, 0.1);
+            color: #25d366;
+        }
+        
+        .share-link.linkedin {
+            color: #0077b5;
+        }
+        
+        .share-link.linkedin:hover {
+            background: rgba(0, 119, 181, 0.1);
+            color: #0077b5;
+        }
+        
+        .share-link.telegram {
+            color: #0088cc;
+        }
+        
+        .share-link.telegram:hover {
+            background: rgba(0, 136, 204, 0.1);
+            color: #0088cc;
+        }
+        
+        .share-link.email {
+            color: #ea4335;
+        }
+        
+        .share-link.email:hover {
+            background: rgba(234, 67, 53, 0.1);
+            color: #ea4335;
+        }
+        
+        .share-link.copy {
+            color: #8b785d;
+        }
+        
+        .share-link.copy:hover {
+            background: rgba(139, 120, 93, 0.1);
+            color: #8b785d;
+        }
+        
+        .share-link i {
+            width: 16px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .share-dropdown {
+                right: -30px;
+                min-width: 140px;
+                padding: 0.8rem;
+            }
+            
+            .share-text {
+                display: none;
+            }
+            
+            .share-simple {
+                padding: 0.5rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .share-dropdown {
+                right: -50px;
+                position: fixed;
+                top: auto;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                min-width: 200px;
+                border: 3px solid #ff6b6b;
+            }
+            
+            .share-simple:hover .share-dropdown {
+                transform: translateX(-50%);
+            }
+        }
+    </style>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Les dropdowns sont maintenant centrées automatiquement avec CSS
+        console.log('Dropdown de partage centrée automatiquement');
+        
+        // Gestion du bouton copier
+        const copyButtons = document.querySelectorAll('.share-link.copy');
+        
+        copyButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const url = this.getAttribute('data-copy-url');
+                const originalHTML = this.innerHTML;
+                
+                // Copier dans le presse-papiers
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(url).then(() => {
+                        showCopySuccess(this, originalHTML);
+                    }).catch(() => {
+                        fallbackCopy(url, this, originalHTML);
+                    });
+                } else {
+                    fallbackCopy(url, this, originalHTML);
+                }
+            });
+        });
+        
+        function showCopySuccess(button, originalHTML) {
+            button.innerHTML = '<i class="fas fa-check"></i> Copié !';
+            button.style.color = '#28a745';
+            
+            setTimeout(() => {
+                button.innerHTML = originalHTML;
+                button.style.color = '';
+            }, 2500);
+        }
+        
+        function fallbackCopy(text, button, originalHTML) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                const success = document.execCommand('copy');
+                if (success) {
+                    showCopySuccess(button, originalHTML);
+                }
+            } catch (err) {
+                console.error('Erreur lors de la copie:', err);
+            }
+            
+            document.body.removeChild(textArea);
+        }
+    });
+    </script>
 {% endblock %}

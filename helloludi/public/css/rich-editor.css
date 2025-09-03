@@ -187,7 +187,6 @@
     color: #212529;
     background: #fff;
     overflow-y: auto;
-    max-height: 600px;
     width: 100%; /* Assurer que le contenu ne déborde pas */
     box-sizing: border-box; /* Inclure padding dans la largeur */
 }

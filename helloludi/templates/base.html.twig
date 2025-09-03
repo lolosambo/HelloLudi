@@ -2,7 +2,39 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}Welcome!{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Hello Ludi - Blog{% endblock %}</title>
+    
+    {% block meta_tags %}
+        <!-- Méta tags génériques -->
+        <meta name="description" content="{% block meta_description %}Blog personnel avec des recettes, photos, actualités et événements{% endblock %}">
+        <meta name="author" content="Hello Ludi">
+        
+        <!-- Open Graph / Facebook -->
+        <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+        <meta property="og:url" content="{{ app.request.schemeAndHttpHost ~ app.request.requestUri }}">
+        <meta property="og:title" content="{% block og_title %}{{ block('title') }}{% endblock %}">
+        <meta property="og:description" content="{% block og_description %}{{ block('meta_description') }}{% endblock %}">
+        <meta property="og:image" content="{% block og_image %}{{ app.request.schemeAndHttpHost }}/img/header.jpg{% endblock %}">
+        <meta property="og:site_name" content="Hello Ludi">
+        
+        <!-- Twitter -->
+        <meta name="twitter:card" content="{% block twitter_card %}summary_large_image{% endblock %}">
+        <meta name="twitter:url" content="{{ app.request.schemeAndHttpHost ~ app.request.requestUri }}">
+        <meta name="twitter:title" content="{% block twitter_title %}{{ block('og_title') }}{% endblock %}">
+        <meta name="twitter:description" content="{% block twitter_description %}{{ block('og_description') }}{% endblock %}">
+        <meta name="twitter:image" content="{% block twitter_image %}{{ block('og_image') }}{% endblock %}">
+        
+        {% if openGraphData is defined %}
+            <!-- Métadonnées Open Graph dynamiques -->
+            {% for property, content in openGraphData %}
+                {% if content %}
+                    <meta property="{{ property }}" content="{{ content }}">
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    {% endblock %}
+    
     <link rel="icon"
           href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
     {% block stylesheets %}

@@ -1,0 +1,284 @@
+{#
+    Widget de partage rapide - pour les cartes d'articles ou listes
+    
+    Variables attendues:
+    - post: L'entité Post
+    - position (optionnel): 'bottom' (défaut), 'top', 'overlay'
+#}
+
+{% set shareUrl = app.request.schemeAndHttpHost ~ path('post_detail', {'post': post.getId()}) %}
+{% set shareTitle = post.getTitle() %}
+{% set sharePosition = position|default('bottom') %}
+
+<div class="share-widget share-widget-{{ sharePosition }}" data-post-id="{{ post.getId() }}">
+    <div class="share-trigger" title="Partager cet article">
+        <i class="bi bi-share-fill"></i>
+        <span class="share-label">Partager</span>
+    </div>
+    
+    <div class="share-options">
+        <button class="share-option facebook" 
+                data-url="https://www.facebook.com/sharer/sharer.php?u={{ shareUrl|url_encode }}"
+                title="Partager sur Facebook">
+            <i class="fab fa-facebook-f"></i>
+        </button>
+        
+        <button class="share-option twitter" 
+                data-url="https://twitter.com/intent/tweet?text={{ shareTitle|url_encode }}&amp;url={{ shareUrl|url_encode }}"
+                title="Partager sur Twitter">
+            <i class="fab fa-twitter"></i>
+        </button>
+        
+        <button class="share-option whatsapp" 
+                data-url="https://wa.me/?text={{ (shareTitle ~ ' ' ~ shareUrl)|url_encode }}"
+                title="Partager sur WhatsApp">
+            <i class="fab fa-whatsapp"></i>
+        </button>
+        
+        <button class="share-option copy" 
+                data-url="{{ shareUrl }}"
+                title="Copier le lien">
+            <i class="fas fa-link"></i>
+        </button>
+    </div>
+</div>
+
+<style>
+.share-widget {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    z-index: 10;
+}
+
+.share-trigger {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 0.8rem;
+    background: rgba(139, 120, 93, 0.1);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.85rem;
+    color: #8b785d;
+    border: 1px solid rgba(139, 120, 93, 0.2);
+}
+
+.share-trigger:hover {
+    background: rgba(139, 120, 93, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(139, 120, 93, 0.3);
+}
+
+.share-trigger i {
+    font-size: 0.9rem;
+}
+
+.share-label,
+.share-count {
+    font-weight: 500;
+    font-size: 0.8rem;
+}
+
+.share-options {
+    position: absolute;
+    display: flex;
+    gap: 0.5rem;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    z-index: 20;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 0.5rem;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(139, 120, 93, 0.3);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(139, 120, 93, 0.1);
+}
+
+.share-widget:hover .share-options {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Positions des options selon la position du widget */
+.share-widget-bottom .share-options {
+    top: calc(100% + 0.5rem);
+    left: 50%;
+    transform: translate(-50%, 10px);
+}
+
+.share-widget-bottom:hover .share-options {
+    transform: translate(-50%, 0);
+}
+
+.share-widget-top .share-options {
+    bottom: calc(100% + 0.5rem);
+    left: 50%;
+    transform: translate(-50%, -10px);
+}
+
+.share-widget-top:hover .share-options {
+    transform: translate(-50%, 0);
+}
+
+.share-widget-overlay .share-options {
+    left: calc(100% + 0.8rem);
+    top: 50%;
+    transform: translate(10px, -50%);
+    flex-direction: row;
+    min-width: 180px;
+}
+
+.share-widget-overlay:hover .share-options {
+    transform: translate(0, -50%);
+}
+
+.share-option {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    flex-shrink: 0;
+}
+
+.share-option:hover {
+    transform: scale(1.15);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.share-option.facebook { background: #1877f2; }
+.share-option.twitter { background: #1da1f2; }
+.share-option.whatsapp { background: #25d366; }
+.share-option.copy { background: #8b785d; }
+
+/* Responsive */
+@media (max-width: 768px) {
+    .share-widget-bottom .share-options,
+    .share-widget-top .share-options,
+    .share-widget-overlay .share-options {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        right: auto;
+        top: auto;
+        transform: translate(-50%, 0);
+        background: rgba(0, 0, 0, 0.9);
+        padding: 1rem;
+        border-radius: 20px;
+        flex-direction: row;
+        min-width: auto;
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .share-widget:hover .share-options {
+        transform: translate(-50%, 0);
+    }
+    
+    .share-trigger {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .share-option {
+        width: 44px;
+        height: 44px;
+        font-size: 1.1rem;
+        margin: 0 0.2rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const shareWidgets = document.querySelectorAll('.share-widget');
+    
+    shareWidgets.forEach(widget => {
+        const options = widget.querySelectorAll('.share-option');
+        
+        options.forEach(option => {
+            option.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const url = this.getAttribute('data-url');
+                const isWhatsApp = this.classList.contains('whatsapp');
+                const isCopy = this.classList.contains('copy');
+                
+                if (isCopy) {
+                    copyToClipboardWidget(url, this);
+                } else if (isWhatsApp) {
+                    window.open(url, '_blank');
+                } else {
+                    const features = 'width=600,height=400,scrollbars=yes,resizable=yes';
+                    window.open(url, 'share', features);
+                }
+                
+                // Animation de feedback
+                this.style.transform = 'scale(0.9)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 150);
+            });
+        });
+    });
+    
+    function copyToClipboardWidget(text, button) {
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(text).then(() => {
+                showWidgetCopyFeedback(button);
+            }).catch(() => {
+                fallbackCopyWidget(text, button);
+            });
+        } else {
+            fallbackCopyWidget(text, button);
+        }
+    }
+    
+    function fallbackCopyWidget(text, button) {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        
+        try {
+            const success = document.execCommand('copy');
+            if (success) {
+                showWidgetCopyFeedback(button);
+            }
+        } catch (err) {
+            console.error('Erreur lors de la copie :', err);
+        }
+        
+        document.body.removeChild(textArea);
+    }
+    
+    function showWidgetCopyFeedback(button) {
+        const originalIcon = button.innerHTML;
+        const originalColor = button.style.background;
+        
+        button.innerHTML = '<i class="fas fa-check"></i>';
+        button.style.background = '#28a745';
+        
+        setTimeout(() => {
+            button.innerHTML = originalIcon;
+            button.style.background = originalColor;
+        }, 2000);
+    }
+});
+</script>
