@@ -49,25 +49,32 @@ class WhoAmIController extends AbstractController
         }
 
         $form = $this->createForm(WhoAmIType::class, $post);
-
-        if($post->getId()){
-            $form->get('content')->setData($post->getContent());
-        }
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $post->setContent($form->get('content')->getData());
+            // Débogage : afficher les données reçues
+            $submittedContent = $form->get('content')->getData();
+            error_log('=== WHO AM I DEBUG ===');
+            error_log('Content submitted: ' . substr($submittedContent, 0, 100) . '...');
+            error_log('Content length: ' . strlen($submittedContent));
+            
+            $post->setContent($submittedContent);
             $post->setUser($em->getRepository(User::class)->find($this->getUser()->getId()));
             $post->setUpdateDate(new \DateTime());
-            if(!$em->getRepository(Post::class)->findOneByTitle('Qui suis-je ?'))
+            
+            if(!$em->getRepository(Post::class)->findOneByTitle('Qui suis-je ?')) {
                 $em->persist($post);
+            }
+            
             $em->flush();
 
             $this->addFlash('success', 'Article "Qui suis-je ?" modifié avec succès');
             return $this->redirectToRoute('who_am_i');
         }
+        
         return $this->render('post/who_am_i_edit.html.twig', [
             'form' => $form->createView(),
+            'post' => $post, // Ajouter le post pour le template
         ]);
     }
 }

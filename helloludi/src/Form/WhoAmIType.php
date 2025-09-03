@@ -22,6 +22,11 @@ class WhoAmIType extends AbstractType
         $builder
             ->add('content', TextareaType::class, [
                 'label' => 'Contenu',
+                'attr' => [
+                    'id' => 'whoami_content',
+                    'style' => 'display: none;'
+                ],
+                'required' => false,
             ]);
     }
 
