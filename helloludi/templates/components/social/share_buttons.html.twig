@@ -41,13 +41,13 @@
             <span class="share-label">Facebook</span>
         </button>
         
-        <!-- Twitter/X -->
+        <!-- X (anciennement Twitter) -->
         <button class="share-btn twitter-btn" 
-                data-url="{{ shareUrls.twitter }}" 
-                data-platform="twitter"
-                title="Partager sur X (Twitter)">
-            <i class="fab fa-twitter"></i>
-            <span class="share-label">Twitter</span>
+                data-url="https://x.com/intent/tweet?text={{ shareTitle|url_encode }}&url={{ currentUrl|url_encode }}&hashtags={{ shareHashtags|url_encode }}" 
+                data-platform="x"
+                title="Partager sur X">
+            <span class="x-logo-detail">𝕏</span>
+            <span class="share-label">X (Twitter)</span>
         </button>
         
         <!-- LinkedIn -->
@@ -75,6 +75,17 @@
                 title="Partager sur WhatsApp">
             <i class="fab fa-whatsapp"></i>
             <span class="share-label">WhatsApp</span>
+        </button>
+        
+        <!-- Instagram -->
+        <button class="share-btn instagram-btn" 
+                data-url="#" 
+                data-platform="instagram"
+                data-share-title="{{ shareTitle }}"
+                data-share-url="{{ currentUrl }}"
+                title="Partager sur Instagram">
+            <i class="fab fa-instagram"></i>
+            <span class="share-label">Instagram</span>
         </button>
         
         <!-- Telegram -->
@@ -204,6 +215,16 @@
     position: relative;
 }
 
+/* Style spécial pour le logo X dans les boutons de partage */
+.x-logo-detail {
+    display: inline-block;
+    font-size: 1.3rem;
+    font-weight: bold;
+    z-index: 2;
+    position: relative;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+}
+
 .share-label {
     z-index: 2;
     position: relative;
@@ -216,7 +237,7 @@
 }
 
 .twitter-btn {
-    background: linear-gradient(135deg, #1da1f2, #0d8bd9);
+    background: linear-gradient(135deg, #000000, #333333);
 }
 
 .linkedin-btn {
@@ -229,6 +250,10 @@
 
 .whatsapp-btn {
     background: linear-gradient(135deg, #25d366, #128c7e);
+}
+
+.instagram-btn {
+    background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
 }
 
 .telegram-btn {
@@ -368,11 +393,50 @@ document.addEventListener('DOMContentLoaded', function() {
             } else if (platform === 'email') {
                 // Ouvrir le client email par défaut
                 window.location.href = url;
+            } else if (platform === 'instagram') {
+                // Instagram n'a pas d'API de partage web, utiliser l'API native ou ouvrir Instagram
+                handleInstagramShare(this);
             } else {
                 // Ouvrir la fenêtre de partage pour les autres plateformes
                 openShareWindow(url, platform);
             }
         });
+    }
+    
+    function handleInstagramShare(button) {
+        const title = button.getAttribute('data-share-title');
+        const url = button.getAttribute('data-share-url');
+        
+        // Essayer l'API de partage native (mobile)
+        if (navigator.share) {
+            navigator.share({
+                title: title,
+                url: url
+            }).then(() => {
+                console.log('Partage Instagram réussi');
+            }).catch(err => {
+                console.log('Partage annulé');
+            });
+        } else {
+            // Fallback : copier le lien et ouvrir Instagram
+            copyToClipboard(url);
+            
+            // Afficher un message personnalisé
+            const notification = document.getElementById('copyNotification');
+            if (notification) {
+                notification.innerHTML = '<i class="bi bi-check-circle-fill"></i>Lien copié ! Collez-le sur Instagram';
+                notification.style.display = 'block';
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                    notification.innerHTML = '<i class="bi bi-check-circle-fill"></i>Lien copié dans le presse-papiers !';
+                }, 4000);
+            }
+            
+            // Ouvrir Instagram sur desktop
+            setTimeout(() => {
+                window.open('https://www.instagram.com/', '_blank');
+            }, 1000);
+        }
     });
     
     function openShareWindow(url, platform) {
