@@ -33,6 +33,17 @@
     position: relative;
 }
 
+/* Nouveau container large pour le layout 2 colonnes */
+.post-detail-container-wide {
+    max-width: 1400px;
+    margin: 2rem auto;
+    background: #f5f4f2;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(139, 120, 93, 0.2);
+    overflow: hidden;
+    position: relative;
+}
+
 .post-detail-container::before {
     content: '';
     position: absolute;
@@ -50,6 +61,16 @@
     color: white;
     position: relative;
     overflow: hidden;
+}
+
+/* Header large pour le layout 2 colonnes */
+.post-header-wide {
+    padding: 2rem 3rem;
+    background: linear-gradient(135deg, #8b785d 0%, #332500 100%);
+    color: white;
+    position: relative;
+    overflow: hidden;
+    width: 100%;
 }
 
 .post-header::before {
@@ -388,17 +409,181 @@
     margin-top: 2rem;
 }
 
+/* Layout principal */
+.post-layout {
+    min-height: 100vh;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+/* Colonne principale - par défaut pleine largeur */
+.main-content-column {
+    background: #f5f4f2;
+    padding: 0;
+    transition: all 0.3s ease;
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Colonne principale quand sidebar ouverte */
+.post-layout.sidebar-open .main-content-column {
+    width: calc(100% - 400px);
+    max-width: calc(100% - 400px);
+}
+
+/* Sidebar commentaires - rétractable */
+.comments-sidebar {
+    background: #e8e3d3;
+    padding: 0;
+    position: fixed;
+    top: 0;
+    right: -400px; /* Cachée par défaut */
+    width: 400px;
+    height: 100vh;
+    z-index: 1000;
+    transition: all 0.3s ease;
+    box-shadow: -5px 0 15px rgba(139, 120, 93, 0.2);
+    overflow: hidden;
+}
+
+/* Sidebar ouverte */
+.comments-sidebar.open {
+    right: 0;
+}
+
+/* Section commentaires en sidebar */
+.comments-section-sidebar {
+    background: #e8e3d3;
+    padding: 2rem;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+/* Onglet de toggle des commentaires */
+.comments-toggle-tab {
+    position: fixed;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    background: linear-gradient(45deg, #8b785d, #a0926f);
+    color: white;
+    padding: 1rem 0.5rem;
+    border-radius: 15px 0 0 15px;
+    cursor: pointer;
+    z-index: 1001;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: -3px 0 10px rgba(139, 120, 93, 0.3);
+    min-width: 50px;
+}
+
+.comments-toggle-tab:hover {
+    background: linear-gradient(45deg, #a0926f, #8b785d);
+    transform: translateY(-50%) translateX(-5px);
+    box-shadow: -8px 0 20px rgba(139, 120, 93, 0.4);
+}
+
+.comments-toggle-tab i {
+    font-size: 1.2rem;
+    margin: 0;
+}
+
+.comment-count {
+    background: #ff6b6b;
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: bold;
+    box-shadow: 0 2px 6px rgba(255, 107, 107, 0.3);
+}
+
+/* Masquer le compteur s'il n'y a pas de commentaires */
+.comment-count[data-count="0"] {
+    display: none;
+}
+
+/* Animation de l'icône quand sidebar ouverte */
+.comments-sidebar.open ~ .comments-toggle-tab {
+    right: 400px;
+}
+
+.comments-sidebar.open ~ .comments-toggle-tab i::before {
+    content: '\F659'; /* bi-arrow-right */
+}
+
+.comments-scroll-area {
+    max-height: calc(100vh - 150px);
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+/* Scrollbar personnalisée pour les commentaires */
+.comments-scroll-area::-webkit-scrollbar {
+    width: 6px;
+}
+
+.comments-scroll-area::-webkit-scrollbar-track {
+    background: rgba(139, 120, 93, 0.1);
+    border-radius: 3px;
+}
+
+.comments-scroll-area::-webkit-scrollbar-thumb {
+    background: rgba(139, 120, 93, 0.3);
+    border-radius: 3px;
+}
+
+.comments-scroll-area::-webkit-scrollbar-thumb:hover {
+    background: rgba(139, 120, 93, 0.5);
+}
+
 .comments-header {
     text-align: center;
-    margin-bottom: 3rem;
+    margin-bottom: 1.5rem;
     position: relative;
 }
 
 .comments-header h4 {
-    font-size: 2rem;
+    font-size: 1.3rem;
     color: #5d4e37;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
     font-weight: 600;
+}
+
+/* Bouton ajouter un commentaire dans la sidebar - Version corrigée */
+.btn-add-comment {
+    background: linear-gradient(45deg, #ff6b6b, #ff5252);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 6px rgba(255, 107, 107, 0.2);
+    cursor: pointer;
+    display: block;
+    text-align: center;
+    margin: 0.5rem auto 0;
+    width: auto;
+    min-width: 150px;
+}
+
+.btn-add-comment:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(255, 107, 107, 0.3);
+    color: white;
+}
+
+.btn-add-comment i {
+    margin-right: 0.4rem;
 }
 
 .comments-header::after {
@@ -407,168 +592,343 @@
     height: 4px;
     background: linear-gradient(90deg, #ff6b6b, #8b785d);
     display: block;
-    margin: 1rem auto;
+    margin: 0.75rem auto 0;
     border-radius: 2px;
 }
 
-/* Commentaires individuels */
+/* Commentaires individuels - Design compact avec cadre */
 .comment {
     background: white;
-    border-radius: 20px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 5px 15px rgba(139, 120, 93, 0.15);
-    transition: all 0.3s ease;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 8px rgba(139, 120, 93, 0.1);
+    transition: all 0.2s ease;
     position: relative;
-    overflow: hidden;
-}
-
-.comment::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 4px;
-    height: 100%;
-    background: linear-gradient(180deg, #ff6b6b, #8b785d);
+    border: none;
 }
 
 .comment:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(139, 120, 93, 0.25);
+    box-shadow: 0 4px 12px rgba(139, 120, 93, 0.15);
+    transform: translateX(2px);
 }
 
 .comment-header {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
 }
 
 .comment-avatar {
-    width: 50px;
-    height: 50px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
-    background: linear-gradient(45deg, #8b785d, #a0926f);
+    background: linear-gradient(45deg, #ff6b6b, #ff5252);
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
     font-weight: bold;
-    font-size: 1.2rem;
-    box-shadow: 0 3px 10px rgba(139, 120, 93, 0.3);
+    font-size: 0.9rem;
+    box-shadow: 0 2px 6px rgba(255, 107, 107, 0.3);
+    flex-shrink: 0;
 }
 
 .comment-meta {
     flex: 1;
+    min-width: 0;
 }
 
 .comment-author {
     font-weight: 600;
     color: #5d4e37;
-    font-size: 1.1rem;
+    font-size: 0.95rem;
+    margin-bottom: 0.25rem;
+    line-height: 1.2;
 }
 
 .comment-date {
     color: #8b785d;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
+    line-height: 1;
 }
 
 .comment-content {
-    margin-left: 66px;
-    padding: 1rem;
-    background: #f9f7f4;
-    border-radius: 15px;
-    position: relative;
-    border: 1px solid #e8e3d3;
+    margin-left: 0;
+    padding: 0.75rem;
+    background: transparent; /* Suppression du fond gris */
+    border-radius: 8px;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    /* Bordure supprimée complètement */
 }
 
-.comment-content::before {
-    content: '';
-    position: absolute;
-    top: 10px;
-    left: -10px;
-    width: 0;
-    height: 0;
-    border-top: 10px solid transparent;
-    border-bottom: 10px solid transparent;
-    border-right: 10px solid #f9f7f4;
-}
-
-/* Réponses aux commentaires */
+/* Réponses aux commentaires - Design minimaliste aligné à droite */
 .comment-replies {
-    margin-left: 66px;
-    margin-top: 1rem;
+    margin-left: 0;
+    margin-top: 0.75rem;
+    padding-right: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end; /* Aligne les réponses à droite */
 }
 
 .reply {
     background: #f0ede6;
-    border-radius: 15px;
-    padding: 1rem;
-    margin-bottom: 1rem;
-    position: relative;
-    border-left: 3px solid #8b785d;
+    border-radius: 8px;
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    max-width: 85%; /* Limite la largeur pour l'effet aligné à droite */
+    /* Suppression forcée de toutes les bordures */
+    border: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-top: none !important;
+    border-bottom: none !important;
 }
 
 .reply-header {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 0.5rem;
     margin-bottom: 0.5rem;
 }
 
 .reply-avatar {
-    width: 35px;
-    height: 35px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
-    background: linear-gradient(45deg, #a0926f, #8b785d);
+    background: linear-gradient(45deg, #8b785d, #a0926f);
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
     font-weight: bold;
-    font-size: 0.9rem;
+    font-size: 0.7rem;
+    flex-shrink: 0;
 }
 
-/* Bouton répondre stylisé */
+.reply .comment-author {
+    font-size: 0.85rem;
+    margin-bottom: 0.1rem;
+}
+
+.reply .comment-date {
+    font-size: 0.75rem;
+}
+
+/* Bouton répondre compact */
 .btn-reply {
-    background: linear-gradient(45deg, #8b785d, #a0926f);
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 15px;
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
+    background: transparent;
+    color: #8b785d;
+    border: 1px solid #d4c4a8;
+    padding: 0.4rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    transition: all 0.2s ease;
+    font-weight: 500;
 }
 
 .btn-reply:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(139, 120, 93, 0.4);
+    background: #8b785d;
     color: white;
+    border-color: #8b785d;
+    transform: scale(1.05);
 }
 
 /* Messages vides stylisés */
 .empty-comments {
     text-align: center;
-    padding: 3rem;
+    padding: 2rem 1rem;
     color: #8b785d;
     background: white;
-    border-radius: 20px;
+    border-radius: 12px;
     border: 2px dashed #d4c4a8;
 }
 
 .empty-comments i {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-    opacity: 0.5;
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+    opacity: 0.6;
     color: #8b785d;
 }
 
-/* Modales modernes */
-.modal-content {
+.empty-comments h5 {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.empty-comments p {
+    font-size: 0.85rem;
+    margin-bottom: 0;
+}
+
+/* Système de modales personnalisées - Solution définitive */
+.custom-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2000000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease;
+}
+
+.custom-modal.show {
+    display: flex !important; /* Force l'affichage */
+}
+
+.custom-modal-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 2000001;
+}
+
+.custom-modal-dialog {
+    position: relative;
+    z-index: 2000002;
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideIn 0.3s ease;
+}
+
+.custom-modal-content {
+    background: white;
     border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    position: relative;
+    z-index: 2000003;
+}
+
+.custom-modal-header {
+    background: linear-gradient(45deg, #8b785d, #a0926f);
+    color: white;
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.custom-modal-title {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.custom-btn-close {
+    background: rgba(0, 0, 0, 0.1);
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    color: rgba(0, 0, 0, 0.8);
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    z-index: 2000010;
+    pointer-events: auto;
+}
+
+.custom-btn-close:hover {
+    background: rgba(255, 107, 107, 0.8);
+    border-color: rgba(255, 107, 107, 1);
+    color: white;
+    transform: scale(1.1);
+}
+
+.custom-modal-body {
+    padding: 2rem;
+    background: #f9f7f4;
+}
+
+/* Assure que tous les éléments du formulaire sont accessibles */
+.custom-modal input,
+.custom-modal textarea,
+.custom-modal select,
+.custom-modal button,
+.custom-modal .form-control,
+.custom-modal .btn {
+    position: relative;
+    z-index: 2000004;
+    pointer-events: auto;
+    background: white;
+    border: 2px solid #d4c4a8;
+    border-radius: 10px;
+    padding: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.custom-modal input:focus,
+.custom-modal textarea:focus,
+.custom-modal select:focus {
+    outline: none;
+    border-color: #ff6b6b;
+    box-shadow: 0 0 0 0.2rem rgba(255, 107, 107, 0.25);
+    background: white;
+}
+
+.custom-modal .btn-modern {
     border: none;
-    box-shadow: 0 20px 40px rgba(139, 120, 93, 0.2);
+    background: linear-gradient(45deg, #ff6b6b, #d63031);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+}
+
+.custom-modal .btn-modern:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .custom-modal-dialog {
+        width: 95%;
+        margin: 1rem;
+    }
+    
+    .custom-modal-header,
+    .custom-modal-body {
+        padding: 1.5rem;
+    }
 }
 
 .modal-header {
@@ -689,16 +1049,45 @@
 }
 
 /* Responsive */
+@media (max-width: 992px) {
+    .post-detail-container-wide {
+        margin: 1rem;
+        border-radius: 15px;
+    }
+    
+    /* Sidebar en mode mobile - overlay plein écran */
+    .comments-sidebar {
+        width: 100%;
+        right: -100%;
+    }
+    
+    .comments-sidebar.open {
+        right: 0;
+    }
+    
+    .comments-sidebar.open ~ .comments-toggle-tab {
+        right: calc(100% - 50px);
+    }
+    
+    .post-layout.sidebar-open .main-content-column {
+        width: 100%;
+        max-width: 100%;
+    }
+}
+
 @media (max-width: 768px) {
-    .post-detail-container {
+    .post-detail-container,
+    .post-detail-container-wide {
         margin: 1rem;
         border-radius: 15px;
     }
 
     .post-header,
+    .post-header-wide,
     .post-content-wrapper,
     .post-actions-wrapper,
-    .comments-section {
+    .comments-section,
+    .comments-section-sidebar {
         padding: 1.5rem;
     }
 

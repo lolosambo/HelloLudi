@@ -6,13 +6,364 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log('📄 Page de détail - Initialisation des fonctionnalités');
+    console.log('DOM chargé, démarrage dans 500ms...');
+    
+    // Vérifier immédiatement les éléments
+    const modalTriggers = document.querySelectorAll('[data-custom-modal]');
+    const customModals = document.querySelectorAll('.custom-modal');
+    console.log('Triggers trouvés:', modalTriggers.length);
+    console.log('Modales trouvées:', customModals.length);
     
     // Attendre un peu pour que tous les éléments soient chargés
     setTimeout(() => {
         initGallery();
         initRatingSystem();
+        initModals(); // Nouvelle fonction pour les modales
+        initCommentsSidebar(); // Nouvelle fonction pour la sidebar rétractable
     }, 500);
 });
+
+/**
+ * Initialise la sidebar de commentaires rétractable
+ */
+function initCommentsSidebar() {
+    console.log('💬 Sidebar commentaires - Initialisation');
+    
+    const sidebar = document.getElementById('commentsSidebar');
+    const toggleTab = document.getElementById('commentsToggleTab');
+    const postLayout = document.getElementById('postLayout');
+    const mainColumn = document.getElementById('mainContentColumn');
+    const commentCount = document.getElementById('commentCount');
+    
+    if (!sidebar || !toggleTab) {
+        console.log('⚠️ Éléments de la sidebar non trouvés');
+        return;
+    }
+    
+    // État de la sidebar (fermée par défaut)
+    let sidebarOpen = false;
+    
+    // Masquer le compteur s'il n'y a pas de commentaires
+    const count = parseInt(commentCount.textContent || '0');
+    if (count === 0) {
+        commentCount.style.display = 'none';
+    }
+    
+    // Fonction pour ouvrir la sidebar
+    function openSidebar() {
+        sidebarOpen = true;
+        sidebar.classList.add('open');
+        if (postLayout) postLayout.classList.add('sidebar-open');
+        
+        // Changer l'icône
+        const icon = toggleTab.querySelector('i');
+        if (icon) {
+            icon.className = 'bi bi-arrow-right';
+        }
+        
+        console.log('✅ Sidebar ouverte');
+    }
+    
+    // Fonction pour fermer la sidebar
+    function closeSidebar() {
+        sidebarOpen = false;
+        sidebar.classList.remove('open');
+        if (postLayout) postLayout.classList.remove('sidebar-open');
+        
+        // Changer l'icône
+        const icon = toggleTab.querySelector('i');
+        if (icon) {
+            icon.className = 'bi bi-chat-dots';
+        }
+        
+        console.log('✅ Sidebar fermée');
+    }
+    
+    // Fonction pour basculer l'état
+    function toggleSidebar() {
+        if (sidebarOpen) {
+            closeSidebar();
+        } else {
+            openSidebar();
+        }
+    }
+    
+    // Événement de clic sur l'onglet
+    toggleTab.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleSidebar();
+    });
+    
+    // Fermer la sidebar si on clique à l'extérieur
+    document.addEventListener('click', function(e) {
+        if (sidebarOpen && 
+            !sidebar.contains(e.target) && 
+            !toggleTab.contains(e.target)) {
+            closeSidebar();
+        }
+    });
+    
+    // Fermer avec la touche Échap
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && sidebarOpen) {
+            closeSidebar();
+        }
+    });
+    
+    // Gestion responsive
+    function handleResize() {
+        if (window.innerWidth < 768 && sidebarOpen) {
+            closeSidebar();
+        }
+    }
+    
+    window.addEventListener('resize', handleResize);
+    
+    // Exposer les fonctions au contexte global pour déboggage
+    window.sidebarAPI = {
+        open: openSidebar,
+        close: closeSidebar,
+        toggle: toggleSidebar,
+        isOpen: () => sidebarOpen
+    };
+    
+    console.log('✅ Sidebar commentaires initialisée');
+}
+
+/**
+ * Système de modales personnalisées - Solution définitive
+ */
+function initModals() {
+    console.log('🪟 Modales personnalisées - Initialisation');
+    
+    // Vérification des éléments
+    const modalTriggers = document.querySelectorAll('[data-custom-modal]');
+    const customModals = document.querySelectorAll('.custom-modal');
+    
+    console.log('Triggers trouvés:', modalTriggers.length);
+    console.log('Modales trouvées:', customModals.length);
+    
+    if (modalTriggers.length === 0) {
+        console.error('⚠️ Aucun trigger de modale trouvé !');
+        return;
+    }
+    
+    if (customModals.length === 0) {
+        console.error('⚠️ Aucune modale personnalisée trouvée !');
+        return;
+    }
+    
+    // Fonction globale pour gérer la fermeture - déclarée en premier
+    window.handleCloseClick = function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('Clic sur bouton de fermeture détecté');
+        
+        // Méthode 1 : via data-custom-close
+        const modalId = this.getAttribute('data-custom-close');
+        if (modalId) {
+            console.log('Fermeture via data-custom-close:', modalId);
+            closeCustomModal(modalId);
+            return;
+        }
+        
+        // Méthode 2 : trouver la modale parente
+        const modal = this.closest('.custom-modal');
+        if (modal) {
+            console.log('Fermeture via modale parente:', modal.id);
+            closeCustomModal(modal.id);
+            return;
+        }
+        
+        // Méthode 3 : fermer toutes les modales ouvertes
+        const openModal = document.querySelector('.custom-modal.show');
+        if (openModal) {
+            console.log('Fermeture de toute modale ouverte:', openModal.id);
+            closeCustomModal(openModal.id);
+        }
+    };
+    
+    // Gérer l'ouverture des modales
+    modalTriggers.forEach((trigger, index) => {
+        console.log(`Trigger ${index}:`, trigger.getAttribute('data-custom-modal'));
+        trigger.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const modalId = this.getAttribute('data-custom-modal');
+            console.log('Clic sur trigger pour modale:', modalId);
+            openCustomModal(modalId);
+        });
+    });
+    
+    // Gérer la fermeture des modales avec onclick (plus fiable)
+    const closeButtons = document.querySelectorAll('[data-custom-close]');
+    console.log('Boutons de fermeture trouvés:', closeButtons.length);
+    
+    closeButtons.forEach((closeBtn, index) => {
+        const modalId = closeBtn.getAttribute('data-custom-close');
+        console.log(`Bouton fermeture ${index} pour modale:`, modalId);
+        
+        closeBtn.onclick = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('✅ Fermeture via data-custom-close:', modalId);
+            closeCustomModal(modalId);
+        };
+    });
+    
+    // Backup : onclick sur tous les boutons .custom-btn-close
+    const allCloseButtons = document.querySelectorAll('.custom-btn-close');
+    console.log('Boutons .custom-btn-close trouvés:', allCloseButtons.length);
+    
+    allCloseButtons.forEach((btn, index) => {
+        if (!btn.onclick) { // Seulement si pas déjà configuré
+            btn.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Trouver la modale parente
+                const modal = this.closest('.custom-modal');
+                if (modal) {
+                    console.log('✅ Fermeture via modale parente:', modal.id);
+                    closeCustomModal(modal.id);
+                }
+            };
+        }
+    });
+    
+    // Gestion des touches clavier
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const openModal = document.querySelector('.custom-modal.show');
+            if (openModal) {
+                console.log('Fermeture par Escape:', openModal.id);
+                closeCustomModal(openModal.id);
+            }
+        }
+    });
+    
+    // Ajouter un debug global pour tous les clics
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('custom-btn-close')) {
+            console.log('🎯 CLIC GLOBAL DÉTECTÉ sur .custom-btn-close:', e.target);
+        }
+        if (e.target.getAttribute('data-custom-close')) {
+            console.log('🎯 CLIC GLOBAL DÉTECTÉ sur [data-custom-close]:', e.target);
+        }
+    }, true); // true = capture phase
+    
+    console.log('✅ Modales personnalisées initialisées avec succès');
+}
+
+/**
+ * Ouvre une modale personnalisée
+ */
+function openCustomModal(modalId) {
+    console.log('Ouverture de la modale:', modalId);
+    
+    const modal = document.getElementById(modalId);
+    if (!modal) {
+        console.error('Modale introuvable:', modalId);
+        return;
+    }
+    
+    // Fermer toute autre modale ouverte
+    const openModals = document.querySelectorAll('.custom-modal.show');
+    openModals.forEach(openModal => {
+        if (openModal.id !== modalId) {
+            closeCustomModal(openModal.id);
+        }
+    });
+    
+    // Supprimer le style display: none et ajouter la classe show
+    modal.style.display = ''; // Supprime le style inline
+    modal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+    
+    // Réinitialiser les événements de fermeture pour cette modale spécifiquement
+    setTimeout(() => {
+        initCloseEventsForModal(modal);
+    }, 100);
+    
+    // Focus sur le premier input
+    setTimeout(() => {
+        const firstInput = modal.querySelector('input[type="text"], textarea');
+        if (firstInput) {
+            firstInput.focus();
+            firstInput.select(); // Sélectionne le texte s'il y en a
+            console.log('Focus sur:', firstInput.name || firstInput.className);
+        }
+    }, 300); // Délai plus long pour s'assurer que l'animation est terminée
+    
+    console.log('✅ Modale ouverte:', modalId);
+}
+
+/**
+ * Initialise les événements de fermeture pour une modale spécifique
+ */
+function initCloseEventsForModal(modal) {
+    console.log('Initialisation des événements de fermeture pour:', modal.id);
+    
+    // Trouver tous les boutons de fermeture dans cette modale
+    const closeButtons = modal.querySelectorAll('.custom-btn-close, [data-custom-close]');
+    console.log('Boutons de fermeture trouvés dans cette modale:', closeButtons.length);
+    
+    closeButtons.forEach((btn, index) => {
+        console.log(`Configuration du bouton ${index}`);
+        
+        // Utiliser onclick direct (qui fonctionne !)
+        btn.onclick = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('✅ Fermeture de la modale:', modal.id);
+            closeCustomModal(modal.id);
+        };
+        
+        // Style discret mais visible
+        btn.title = 'Fermer';
+        
+        console.log('✅ Bouton configuré avec onclick');
+    });
+    
+    // Backdrop avec onclick aussi
+    const backdrop = modal.querySelector('.custom-modal-backdrop');
+    if (backdrop) {
+        backdrop.onclick = function(e) {
+            if (e.target === backdrop) { // Seulement si clic direct sur backdrop
+                console.log('✅ Fermeture via backdrop pour:', modal.id);
+                closeCustomModal(modal.id);
+            }
+        };
+        console.log('✅ Backdrop configuré');
+    }
+}
+
+/**
+ * Ferme une modale personnalisée
+ */
+function closeCustomModal(modalId) {
+    console.log('Fermeture de la modale:', modalId);
+    
+    const modal = document.getElementById(modalId);
+    if (!modal) {
+        console.error('Modale introuvable:', modalId);
+        return;
+    }
+    
+    modal.classList.remove('show');
+    modal.style.display = 'none'; // Remet le style display: none
+    document.body.style.overflow = '';
+    
+    console.log('✅ Modale fermée:', modalId);
+}
+
+/**
+ * Vérifie si une modale est ouverte
+ */
+function isModalOpen() {
+    return document.querySelector('.custom-modal.show') !== null;
+}
 
 /**
  * Galerie photo avec navigation - Version finale
