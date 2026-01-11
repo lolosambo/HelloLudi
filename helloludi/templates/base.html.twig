@@ -59,11 +59,12 @@
         {% else %}
             <link rel="stylesheet" href="{{ asset('css/style.css') }}">
         {% endif %}
+        <link rel="stylesheet" href="{{ asset('css/NGTextEditor.min.css') }}">
     {% endblock %}
 
     {% block javascripts %}
+{#        <script src="{{ asset('js/pages/base.js') }}"></script>#}
         <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
-        <script src="{{ asset('js/pages/base.js') }}"></script>
     {% endblock %}
 </head>
 <body>

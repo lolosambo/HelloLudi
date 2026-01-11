@@ -148,7 +148,6 @@
 
 /* Améliorer l'espacement des paragraphes */
 .post-content p {
-    margin: 1.2em 0;
     text-align: justify;
     hyphens: auto;
 }

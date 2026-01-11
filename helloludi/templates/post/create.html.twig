@@ -4,12 +4,11 @@
     {{ parent() }}
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="{{ asset('css/form-styles.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/rich-editor.css') }}" rel="stylesheet">
     <link href="{{ asset('css/stable-images.css') }}" rel="stylesheet">
     <link href="{{ asset('css/image-fix-v3.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/table-editor.css') }}" rel="stylesheet">
     <link href="{{ asset('css/gallery-styles.css') }}" rel="stylesheet">
     <link href="{{ asset('css/post-content-styles.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/NGTextEditor.min.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -64,8 +63,7 @@
                 <i class="bi bi-file-text"></i>
                 {{ form_label(form.content) }}
             </label>
-            {{ form_widget(form.content, {'attr': {'style': 'display: none;', 'id': 'post_content'}}) }}
-            <div id="richEditorContainer" class="editor-form-container"></div>
+            {{ form_widget(form.content, {'attr': {'class': 'ngeditor'}}) }}
             {{ form_errors(form.content) }}
         </div>
 
@@ -172,13 +170,9 @@
         {{ form_end(form) }}
     </div>
 
-    {# Modales pour l'éditeur #}
-    {% include 'components/_simple_editor_modals.html.twig' %}
-
-    <script src="{{ asset('js/SimpleRichEditor.js') }}"></script>
-    <script src="{{ asset('js/table-editor.js') }}"></script>
-    <script src="{{ asset('js/form-handler.js') }}"></script>
+{#    <script src="{{ asset('js/form-handler.js') }}"></script>#}
     <script src="{{ asset('js/gallery-init.js') }}"></script>
     <script src="{{ asset('js/gallery-simple.js') }}"></script>
+    <script type="module" src="{{ asset('js/NGTextEditor.min.js') }}"></script>
 
 {% endblock %}

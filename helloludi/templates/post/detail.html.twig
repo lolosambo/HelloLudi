@@ -24,9 +24,9 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/comments.css') }}">
     <link href="{{ asset('css/post-content-styles.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/stable-images.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/image-fix-v3.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/table-editor.css') }}" rel="stylesheet">
+{#    <link href="{{ asset('css/stable-images.css') }}" rel="stylesheet">#}
+{#    <link href="{{ asset('css/image-fix-v3.css') }}" rel="stylesheet">#}
+{#    <link href="{{ asset('css/table-editor.css') }}" rel="stylesheet">#}
     <link rel="stylesheet" href="{{ asset('css/pages/post-detail.css') }}">
 {% endblock %}
 
@@ -94,7 +94,7 @@
 
                 <!-- Contenu de l'article -->
                 <div class="post-content-wrapper">
-                    <div class="post-content">
+                    <div class="post-content nge-readonly">
                         {{ post.getContent() | raw }}
                     </div>
                     
@@ -362,10 +362,7 @@
 {% block javascripts %}
     {{ parent() }}
     <!-- Scripts JavaScript pour les fonctionnalités spécifiques -->
-    <script src="{{ asset('js/image-cleanup-universal.js') }}"></script>
-    <script src="{{ asset('js/table-sort.js') }}"></script>
-    <script src="{{ asset('js/table-read-only-protection.js') }}"></script>
-    <script src="{{ asset('js/pages/post-detail.js') }}"></script>
+{#    <script src="{{ asset('js/pages/post-detail.js') }}"></script>#}
     
     {% if jsonLdData is defined %}
         <!-- Données structurées JSON-LD pour le SEO -->

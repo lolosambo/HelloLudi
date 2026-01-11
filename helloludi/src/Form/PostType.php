@@ -32,6 +32,7 @@ class PostType extends AbstractType
                 'required' => false,
                 'attr' => [
                     'rows' => 10,
+                    'class' => 'ngeditor'
                 ],
             ])
 
