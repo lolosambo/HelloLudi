@@ -43,15 +43,8 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
-# Copy custom entrypoint
-COPY docker-entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
-
 # Set working directory
 WORKDIR /var/www/html
 
 # Expose port 80
 EXPOSE 80
-
-# Use custom entrypoint
-ENTRYPOINT ["docker-entrypoint.sh"]

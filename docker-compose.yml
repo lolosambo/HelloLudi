@@ -1,9 +1,7 @@
-version: '3.8'
-
 services:
   app:
     build: .
-    container_name: php-app
+    container_name: blog-app
     volumes:
       - .:/var/www/html
     ports:
@@ -17,7 +15,7 @@ services:
 
   db:
     image: mysql:8.0
-    container_name: mysql-db
+    container_name: blog-mysql-db
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: 1977sram01
@@ -33,7 +31,7 @@ services:
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
-    container_name: phpmyadmin
+    container_name: blog-phpmyadmin
     environment:
       PMA_HOST: db
       PMA_PORT: 3306

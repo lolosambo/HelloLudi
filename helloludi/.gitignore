@@ -1,12 +1,12 @@
 
 ###> symfony/framework-bundle ###
-/.env.local
-/.env.local.php
-/.env.*.local
+/.env
+/.env.dev
 /config/secrets/prod/prod.decrypt.private.php
 /public/bundles/
 /public/img/froala/
 /public/img/posts/
 /var/
 /vendor/
+/.idea/
 ###< symfony/framework-bundle ###
