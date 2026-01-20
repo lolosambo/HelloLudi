@@ -1,0 +1,75 @@
+{
+  "locked": true,
+
+  "settings": {
+    "theme": "cold",
+    "language": "fr",
+    "iconSize": "small",
+    "toolbarMode": "integrated"
+  },
+
+  "customColors": [
+    "#ff5733",
+    "#33ff57",
+    "#3357ff"
+  ],
+
+  "tools": {
+    "font": {
+      "paragraph": true,
+      "font-family": true,
+      "font-size": true,
+      "line-height": true,
+      "text-color": true,
+      "bg-color": true
+    },
+
+    "text-style": {
+      "bold": true,
+      "italic": true,
+      "underline": true,
+      "strikethrough": true,
+      "text-case": true,
+      "superscript": true
+    },
+
+    "alignment": {
+      "align-left": true,
+      "align-center": true,
+      "align-right": true,
+      "align-justify": true,
+      "indent": true,
+      "outdent": true
+    },
+
+    "lists": {
+      "list-ul": true,
+      "list-ol": true,
+      "list-todo": true
+    },
+
+    "media": {
+      "link": true,
+      "image": true,
+      "video": true,
+      "table": true,
+      "columns": true,
+      "emoji": true
+    },
+
+    "insert": {
+      "quote": true,
+      "code": true,
+      "hr": true
+    },
+
+    "actions": {
+      "undo": true,
+      "redo": true,
+      "preview": true,
+      "export-json": true,
+      "export-pdf": true,
+      "export-html": true
+    }
+  }
+}
