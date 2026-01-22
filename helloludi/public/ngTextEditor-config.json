@@ -17,7 +17,7 @@
   ],
 
   "autoDetectColors": {
-    "enabled": true,
+    "enabled": false,
     "maxColors": 10,
     "maxTotal": 15,
     "includeGrays": true,
