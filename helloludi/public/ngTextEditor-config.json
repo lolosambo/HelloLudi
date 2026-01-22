@@ -26,7 +26,7 @@
 
   "customFonts": [
     { "value": "Arial, sans-serif", "label": "Arial" },
-    { "value": "Impact, sans-serif", "label": "Impact" }
+    { "value": "Impact, sans-serif", "label": "Impact" },
     { "value": "Arial Black, sans-serif", "label": "Arial Black" }
   ],
 
