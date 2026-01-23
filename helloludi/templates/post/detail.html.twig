@@ -362,7 +362,7 @@
 {% block javascripts %}
     {{ parent() }}
     <!-- Scripts JavaScript pour les fonctionnalités spécifiques -->
-{#    <script src="{{ asset('js/pages/post-detail.js') }}"></script>#}
+    <script src="{{ asset('js/pages/post-detail.js') }}"></script>
     
     {% if jsonLdData is defined %}
         <!-- Données structurées JSON-LD pour le SEO -->
