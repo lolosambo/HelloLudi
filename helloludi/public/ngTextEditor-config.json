@@ -5,19 +5,18 @@
     "theme": "cold",
     "language": "fr",
     "iconSize": "small",
-    "toolbarMode": "integrated"
+    "toolbarMode": "integrated",
+    "showBlockOutlines": false
   },
 
   "customColors": [
-    "#B46565",
-    "#80CBC4",
-    "#FFF176",
-    "#CFD8DC",
-    "#010101"
+    "#ff5733",
+    "#33ff57",
+    "#3357ff"
   ],
 
   "autoDetectColors": {
-    "enabled": false,
+    "enabled": true,
     "maxColors": 10,
     "maxTotal": 15,
     "includeGrays": true,
@@ -26,8 +25,24 @@
 
   "customFonts": [
     { "value": "Arial, sans-serif", "label": "Arial" },
+    { "value": "Helvetica, Arial, sans-serif", "label": "Helvetica" },
+    { "value": "Georgia, serif", "label": "Georgia" },
+    { "value": "Times New Roman, Times, serif", "label": "Times New Roman" },
+    { "value": "Courier New, Courier, monospace", "label": "Courier New" },
+    { "value": "Verdana, Geneva, sans-serif", "label": "Verdana" },
+    { "value": "Trebuchet MS, sans-serif", "label": "Trebuchet MS" },
     { "value": "Impact, sans-serif", "label": "Impact" },
-    { "value": "Arial Black, sans-serif", "label": "Arial Black" }
+    { "value": "Comic Sans MS, cursive", "label": "Comic Sans MS" },
+    { "value": "Palatino Linotype, Book Antiqua, Palatino, serif", "label": "Palatino" },
+    { "value": "Lucida Sans Unicode, Lucida Grande, sans-serif", "label": "Lucida Sans" },
+    { "value": "Tahoma, Geneva, sans-serif", "label": "Tahoma" },
+    { "value": "Century Gothic, sans-serif", "label": "Century Gothic" },
+    { "value": "Garamond, serif", "label": "Garamond" },
+    { "value": "Bookman Old Style, serif", "label": "Bookman" },
+    { "value": "Arial Black, sans-serif", "label": "Arial Black" },
+    { "value": "Brush Script MT, cursive", "label": "Brush Script" },
+    { "value": "Copperplate, Copperplate Gothic Light, fantasy", "label": "Copperplate" },
+    { "value": "Rockwell, serif", "label": "Rockwell" }
   ],
 
   "tools": {
@@ -112,6 +127,8 @@
       "undo": true,
       "redo": true,
       "preview": true,
+      "block-outlines": true,
+      "import-json": true,
       "export-json": true,
       "export-pdf": true,
       "export-html": true
