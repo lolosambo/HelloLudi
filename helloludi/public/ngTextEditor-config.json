@@ -6,7 +6,8 @@
     "language": "fr",
     "iconSize": "small",
     "toolbarMode": "integrated",
-    "showBlockOutlines": false
+    "showBlockOutlines": false,
+    "allowFormattedPaste": true
   },
 
   "customColors": [
