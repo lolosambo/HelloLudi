@@ -1,0 +1,11 @@
+/.idea/
+
+###> symfony/framework-bundle ###
+/helloludi/.env
+/helloludi/.env.dev
+/helloludi/config/secrets/prod/prod.decrypt.private.php
+/helloludi/public/bundles/
+helloludi/public/img/froala/
+/helloludi/public/img/posts/
+/helloludi/var/
+/helloludi/vendor/
