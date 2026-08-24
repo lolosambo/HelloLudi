@@ -106,7 +106,7 @@ class PostController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             // Vérification de la taille du contenu
             $contentLength = strlen($form->get('content')->getData() ?? '');
-            if ($contentLength > 8000000) { // ~8MB limite
+            if ($contentLength > 50000000) { // colonne LONGTEXT (pas de contrainte réelle), limite alignée sur post_max_size (80M)
                 $this->addFlash('error', 'Le contenu de votre article est trop volumineux. Veuillez le réduire.');
                 $eventsPosts = $em->getRepository(Post::class)->findByCategory("event");
                 return $this->render('post/create.html.twig', [
@@ -267,7 +267,7 @@ class PostController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             // Vérification de la taille du contenu
             $contentLength = strlen($form->get('content')->getData() ?? '');
-            if ($contentLength > 8000000) { // ~8MB limite
+            if ($contentLength > 50000000) { // colonne LONGTEXT (pas de contrainte réelle), limite alignée sur post_max_size (80M)
                 $this->addFlash('error', 'Le contenu de votre article est trop volumineux. Veuillez le réduire.');
                 $eventsPosts = $em->getRepository(Post::class)->findByCategory("event");
                 return $this->render('post/edit.html.twig', [
