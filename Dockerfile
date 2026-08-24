@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y \
 
 # Configure PHP settings for larger uploads
 RUN echo "upload_max_filesize = 20M" >> /usr/local/etc/php/php.ini-production && \
-    echo "post_max_size = 25M" >> /usr/local/etc/php/php.ini-production && \
+    echo "post_max_size = 80M" >> /usr/local/etc/php/php.ini-production && \
     echo "max_execution_time = 300" >> /usr/local/etc/php/php.ini-production && \
     echo "max_input_time = 300" >> /usr/local/etc/php/php.ini-production && \
     echo "memory_limit = 512M" >> /usr/local/etc/php/php.ini-production && \
